@@ -2,12 +2,7 @@
   "name": "qcup",
   "version": "0.0.0",
   "description": "Efficient file uploader for QCloud.",
-  "repository": "m31271n/qcup",
-  "author": {
-    "name": "m31271n",
-    "email": "m31271n@gmail.com",
-    "url": "stack.m31271n.com"
-  },
+  "repository": "qcup",
   "bin": "src/cli.js",
   "engines": {
     "node": ">=8"
@@ -15,7 +10,6 @@
   "scripts": {
     "precommit": "lint-staged",
     "lint": "eslint 'src/**/*.js' 'test/**/*.js'",
-    "test": "ava",
     "code-quality": "npm run lint && npm run test"
   },
   "files": [
@@ -27,18 +21,16 @@
     ""
   ],
   "dependencies": {
-    "yargs": "^8.0.1"
+    "yargs": "^11.0.0"
   },
   "devDependencies": {
-    "ava": "*",
     "eslint": "^4.19.1",
-    "eslint-plugin-ava": "^4.5.1",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-prettier": "^2.6.0",
-    "eslint-config-prettier": "^2.9.0",
     "husky": "^0.14.3",
-    "lint-staged": "^7.0.4",
-    "prettier": "^1.11.1"
+    "lint-staged": "^7.2.0",
+    "prettier": "^1.13.5"
   },
   "lint-staged": {
     "linters": {
