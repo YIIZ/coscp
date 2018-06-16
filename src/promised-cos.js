@@ -1,3 +1,5 @@
+'use strict';
+
 const COS = require('cos-nodejs-sdk-v5');
 
 module.exports = class PromisedCOS {
@@ -18,15 +20,18 @@ module.exports = class PromisedCOS {
     });
   }
 
-  putObject(params) {
+  sliceUploadFile(params) {
     return new Promise((resolve, reject) => {
-      this.cos.putObject(Object.assign(this.location, params), (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
+      this.cos.sliceUploadFile(
+        Object.assign(this.location, params),
+        (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
         }
-      });
+      );
     });
   }
 };

@@ -1,16 +1,24 @@
-const debug = require('debug')('qcup');
+'use strict';
+
+const runFn = require('run-function');
 const md5File = require('md5-file/promise');
 const COS = require('./promised-cos');
 const { authInfo, location } = require('./config');
 
 const CACHE_TIME = 365;
-const RETRY_TIME = 3;
 const HASH_KEY = 'x-cos-meta-hash';
 
 const cos = new COS(authInfo, location);
 const cacheHeader = getCacheHeader(CACHE_TIME);
 
-async function upload(key, filePath, retryTime = RETRY_TIME) {
+async function upload(
+  key,
+  filePath,
+  retryTime = 3,
+  { onStart, onProgress, onSucceed, onFailed, onSkip }
+) {
+  runFn(onStart);
+
   let remoteHash = '';
   try {
     const meta = await cos.headObject({ Key: key });
@@ -24,27 +32,31 @@ async function upload(key, filePath, retryTime = RETRY_TIME) {
   const localHash = await md5File(filePath);
 
   if (remoteHash !== localHash) {
-    const params = {
+    const params = Object.assign(cacheHeader, {
       Key: key,
-      Body: filePath,
-      ...cacheHeader,
-    };
+      FilePath: filePath,
+      onProgress: function(progressData) {
+        const progress = Math.round(progressData.percent * 100);
+        runFn(onProgress, progress);
+      },
+    });
     params[HASH_KEY] = localHash;
 
     for (let time = 0; time < retryTime; time++) {
       try {
-        await cos.putObject(params);
-        debug(`[SUCCESS] ${key}`);
+        runFn(onProgress, 0);
+        await cos.sliceUploadFile(params);
+        runFn(onSucceed, key);
         return succeed(key);
       } catch (e) {
         if (time >= retryTime) {
-          debug(`[FAILURE] ${key}`);
+          runFn(onFailed, key);
           return failed(key);
         }
       }
     }
   } else {
-    debug(`[SKIP]    ${key}`);
+    runFn(onSkip, key);
     return succeed(key);
   }
 }

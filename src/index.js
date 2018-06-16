@@ -1,30 +1,111 @@
 'use strict';
 
+const path = require('path');
 const fg = require('fast-glob');
+const draft = require('./draft-log');
 const upload = require('./upload');
-const progressPromise = require('./progress-promise');
+const report = require('./report');
 
-async function up(dir) {
-  try {
-    const trailingSlashRE = /\/$/;
-    dir = dir.replace(trailingSlashRE, '');
+function isEmpty(tasks) {
+  return tasks.length === 0;
+}
 
-    const files = await fg.async([`${dir}/**/*`]);
+function generateWorkers(amount) {
+  let workers = [];
+  for (let i = 0; i < amount; i++) {
+    workers.push({ idle: true, complete: false, log: draft('[IDLE]') });
+  }
+  return workers;
+}
 
-    const uploads = files.map(file => {
-      const replaceRE = new RegExp(`^${dir}/`, 'gu');
-      const key = file.replace(replaceRE, '');
-      const filePath = file;
+function dispatchTasks(workers, tasks, state) {
+  for (const worker of workers) {
+    if (worker.idle === true && !isEmpty(tasks)) {
+      worker.idle = false;
+      const { key, filePath } = tasks.pop();
 
-      return upload(key, filePath);
-    });
+      // async uploader
+      upload(key, filePath, 3, {
+        onStart: () => {
+          worker.log(` [HASH] ${key}`);
+        },
+        onProgress: progress => {
+          worker.log(` [${progress.toString().padStart(3)}%] ${key} `);
+        },
+        onSucceed: () => {
+          worker.idle = true;
+          state.succeed++;
+          state.handled++;
+          report(state);
+        },
+        onSkip: () => {
+          worker.idle = true;
+          state.skip++;
+          state.handled++;
+          report(state);
+        },
+        onFailed: () => {
+          worker.idle = true;
+          state.failed++;
+          state.handled++;
+          report(state);
+        },
+      });
+    } else if (
+      worker.idle === true &&
+      isEmpty(tasks) &&
+      worker.complete === false
+    ) {
+      worker.complete = true;
+      worker.log(' [COMPLETE]');
+    }
 
-    await progressPromise(uploads, (progress, total) => {
-      console.log(progress, total);
-    });
-  } catch (e) {
-    console.error(e);
+    if (state.handled === state.total) {
+      const end = workers.every(worker => worker.idle === true);
+      if (end) {
+        workers.forEach(() => {
+          process.stdout.write('\u001b[1A'); // move cursor up
+          process.stdout.write('\u001b[2K'); // clear entire line
+        });
+        process.exit(0); // eslint-disable-line
+      }
+    }
   }
 }
 
-up('../test/files');
+async function qcup(prefix, dir, concurrency = 5) {
+  // prepare
+  const trailingSlashRE = /\/$/;
+  dir = dir.replace(trailingSlashRE, '');
+
+  const files = await fg.async([`${dir}/**/*`]);
+
+  const tasks = files.map(file => {
+    const replaceRE = new RegExp(`^${dir}/`, 'gu');
+    const key = path.join(prefix, file.replace(replaceRE, ''));
+    const filePath = file;
+    return { key, filePath };
+  });
+
+  // upload
+  const state = {
+    total: tasks.length,
+    handled: 0,
+    succeed: 0,
+    skip: 0,
+    failed: 0,
+  };
+
+  report(state);
+
+  const workers = generateWorkers(concurrency);
+  const loop = () => {
+    dispatchTasks(workers, tasks, state);
+    setImmediate(loop);
+  };
+
+  loop();
+}
+
+module.exports = qcup;
+// up('qq-cqsj', '/Users/m31271n/_BASTION_/git/teambun/h5/qq-cqsj/build');
