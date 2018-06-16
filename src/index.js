@@ -108,4 +108,3 @@ async function qcup(prefix, dir, concurrency = 5) {
 }
 
 module.exports = qcup;
-// up('qq-cqsj', '/Users/m31271n/_BASTION_/git/teambun/h5/qq-cqsj/build');
