@@ -3,62 +3,66 @@
 const runFn = require('run-function');
 const md5File = require('md5-file/promise');
 const COS = require('./promised-cos');
-const { auth, location } = require('./config');
 
 const CACHE_TIME = 365;
 const HASH_KEY = 'x-cos-meta-hash';
 
-const cos = new COS(auth, location);
 const cacheHeader = getCacheHeader(CACHE_TIME);
 
-async function upload(
-  key,
-  filePath,
-  retryTime = 3,
-  { onStart, onProgress, onSucceed, onFailed, onSkip }
-) {
-  runFn(onStart);
+function initUpload(auth, location) {
+  const cos = new COS(auth, location);
 
-  let remoteHash = '';
-  try {
-    const meta = await cos.headObject({ Key: key });
-    remoteHash = meta.headers[HASH_KEY];
-  } catch (e) {
-    if (e.error !== 'Not Found') {
-      throw e;
-    }
-  }
+  async function upload(
+    key,
+    filePath,
+    retryTime = 3,
+    { onStart, onProgress, onSucceed, onFailed, onSkip }
+  ) {
+    runFn(onStart);
 
-  const localHash = await md5File(filePath);
-
-  if (remoteHash !== localHash) {
-    const params = Object.assign(cacheHeader, {
-      Key: key,
-      FilePath: filePath,
-      onProgress: function(progressData) {
-        const progress = Math.round(progressData.percent * 100);
-        runFn(onProgress, progress);
-      },
-    });
-    params[HASH_KEY] = localHash;
-
-    for (let time = 0; time < retryTime; time++) {
-      try {
-        runFn(onProgress, 0);
-        await cos.sliceUploadFile(params);
-        runFn(onSucceed, key);
-        return succeed(key);
-      } catch (e) {
-        if (time >= retryTime) {
-          runFn(onFailed, key);
-          return failed(key);
-        }
+    let remoteHash = '';
+    try {
+      const meta = await cos.headObject({ Key: key });
+      remoteHash = meta.headers[HASH_KEY];
+    } catch (e) {
+      if (e.error !== 'Not Found') {
+        throw e;
       }
     }
-  } else {
-    runFn(onSkip, key);
-    return succeed(key);
+
+    const localHash = await md5File(filePath);
+
+    if (remoteHash !== localHash) {
+      const params = Object.assign(cacheHeader, {
+        Key: key,
+        FilePath: filePath,
+        onProgress: function(progressData) {
+          const progress = Math.round(progressData.percent * 100);
+          runFn(onProgress, progress);
+        },
+      });
+      params[HASH_KEY] = localHash;
+
+      for (let time = 0; time < retryTime; time++) {
+        try {
+          runFn(onProgress, 0);
+          await cos.sliceUploadFile(params);
+          runFn(onSucceed, key);
+          return succeed(key);
+        } catch (e) {
+          if (time >= retryTime) {
+            runFn(onFailed, key);
+            return failed(key);
+          }
+        }
+      }
+    } else {
+      runFn(onSkip, key);
+      return succeed(key);
+    }
   }
+
+  return upload;
 }
 
 function getCacheHeader(day) {
@@ -79,4 +83,4 @@ function failed(key) {
   return { success: false, key };
 }
 
-module.exports = upload;
+module.exports = initUpload;

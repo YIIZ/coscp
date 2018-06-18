@@ -3,8 +3,11 @@
 const path = require('path');
 const fg = require('fast-glob');
 const draft = require('./draft-log');
-const upload = require('./upload');
 const report = require('./report');
+const initUpload = require('./upload');
+const { auth, location } = require('./config');
+
+const upload = initUpload(auth, location);
 
 function isEmpty(tasks) {
   return tasks.length === 0;
