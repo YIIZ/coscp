@@ -395,9 +395,9 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "http://registry.npm.taobao.org/core-util-is/download/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
-cos-nodejs-sdk-v5@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/cos-nodejs-sdk-v5/-/cos-nodejs-sdk-v5-2.4.3.tgz#acb7d282dc01d3fe45f7bd4855db2925e1d92245"
+"cos-nodejs-sdk-v5@https://github.com/tencentyun/cos-nodejs-sdk-v5.git#298b2a":
+  version "2.4.5"
+  resolved "https://github.com/tencentyun/cos-nodejs-sdk-v5.git#298b2acaec8b916242d9790e1fddf4ea6d27cc12"
   dependencies:
     configstore "^3.1.2"
     request "^2.81.0"
