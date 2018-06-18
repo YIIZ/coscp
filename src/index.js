@@ -88,6 +88,12 @@ function dispatchTasks(workers, tasks, state) {
           process.stdout.write('\u001b[1A'); // move cursor up
           process.stdout.write('\u001b[2K'); // clear entire line
         });
+
+        const peopleInOurTeam = 4;
+        const smilingFace = String.fromCodePoint(128526);
+        process.stdout.write(
+          ` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`
+        );
         process.exit(0); // eslint-disable-line
       }
     }
