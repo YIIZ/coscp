@@ -2,7 +2,7 @@
 
 const runFn = require('run-function');
 const md5File = require('md5-file/promise');
-const COS = require('./promised-cos');
+const promisedCOS = require('./promised-cos');
 
 const CACHE_TIME = 365;
 const HASH_KEY = 'x-cos-meta-hash';
@@ -10,7 +10,7 @@ const HASH_KEY = 'x-cos-meta-hash';
 const cacheHeader = getCacheHeader(CACHE_TIME);
 
 function initUpload(auth, location) {
-  const cos = new COS(auth, location);
+  const cos = promisedCOS(auth, location);
 
   async function upload(
     key,

@@ -2,36 +2,24 @@
 
 const COS = require('cos-nodejs-sdk-v5');
 
-module.exports = class PromisedCOS {
-  constructor(authInfo, location) {
-    this.cos = new COS(authInfo);
-    this.location = location;
-  }
+module.exports = function promisedCOS(auth, location) {
+  const cos = new COS(auth);
 
-  headObject(params) {
-    return new Promise((resolve, reject) => {
-      this.cos.headObject(Object.assign(this.location, params), (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      });
-    });
-  }
+  const handler = {
+    get: function(obj, prop) {
+      return function(params) {
+        return new Promise((resolve, reject) => {
+          obj[prop](Object.assign(location, params), (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data);
+            }
+          });
+        });
+      };
+    },
+  };
 
-  sliceUploadFile(params) {
-    return new Promise((resolve, reject) => {
-      this.cos.sliceUploadFile(
-        Object.assign(this.location, params),
-        (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        }
-      );
-    });
-  }
+  return new Proxy(cos, handler);
 };
