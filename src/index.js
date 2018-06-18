@@ -1,6 +1,5 @@
 'use strict';
 
-const path = require('path');
 const fg = require('fast-glob');
 const draft = require('./lib/draft-log');
 const report = require('./report');
@@ -76,16 +75,24 @@ function dispatchTasks(workers, tasks, state) {
   }
 }
 
-async function qcup(prefix, dir, concurrency = 5) {
-  // prepare
+async function scanFiles(dir) {
   const trailingSlashRE = /\/$/;
   dir = dir.replace(trailingSlashRE, '');
 
   const files = await fg.async([`${dir}/**/*`]);
+  return files;
+}
+
+function replaceFilePath(filePath, source, target) {
+  const re = new RegExp(`^${source}`, 'gu');
+  return filePath.replace(re, target);
+}
+
+async function qcup(prefix, dir, concurrency = 5) {
+  const files = await scanFiles(dir);
 
   const tasks = files.map(file => {
-    const replaceRE = new RegExp(`^${dir}/`, 'gu');
-    const key = path.join(prefix, file.replace(replaceRE, ''));
+    const key = replaceFilePath(file, dir, prefix);
     const filePath = file;
     return { key, filePath };
   });
