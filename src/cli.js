@@ -7,7 +7,14 @@ const yargs = require('yargs');
 const qcup = require('.');
 
 const argv = yargs
-  .usage('Usage: $0 -s [source directory] -t [target directory]')
+  .usage(
+    [
+      'Usage: $0',
+      '-s [source directory]',
+      '-t [target directory]',
+      '-c [concurrency]',
+    ].join(' ')
+  )
   .option('s', {
     demandOption: true,
     describe: 'source directoy contains files waiting for uploading',

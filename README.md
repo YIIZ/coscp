@@ -1,66 +1,39 @@
 # qcup
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Dependency Status](https://img.shields.io/david/m31271n/qcup.svg)](#)
-[![DevDependency Status](https://img.shields.io/david/m31271n/qcup.svg)](#)
-[![Travis Build Status](https://img.shields.io/travis/m31271n/qcup.svg)](#)
-[![NPM Downloads](https://img.shields.io/npm/dm/qcup.svg)](#)
-
 
 > Efficient file uploader for QCloud.
 
-## Install
+## 功能
 
-```
-$ npm install qcup
-```
+- 将文件上传至腾讯云对象存储
 
-## Usage
+## 安装
 
-```js
-const qcup = require('qcup');
+通过 Git URL:
 
-qcup('unicorns');
-//=> 'unicorns & rainbows'
-```
+```sh
+# latest version
+$ npm install -g https://bitbucket.org/teambun/qcup.git
 
-## API
-
-### qcup(input, [options])
-
-#### input
-
-Type: `string`
-
-Lorem ipsum.
-
-#### options
-
-##### foo
-
-Type: `boolean`<br>
-Default: `false`
-
-Lorem ipsum.
-
-## CLI
-
-```
-$ npm install --global qcup
+# specific version, for example:
+$ npm install -g https://bitbucket.org/teambun/qcup.git#0.2.0
 ```
 
+通过 NPM (暂未提供):
+
+```sh
+$ npm install -g qcup
 ```
+
+## 使用说明
+
+```sh
 $ qcup --help
+```
 
-  Usage
-    qcup [input]
+## 举例
 
-  Options
-    --foo  Lorem ipsum [Default: false]
-
-  Examples
-    $ qcup
-    unicorns & rainbows
-    $ qcup ponies
-    ponies & rainbows
+```sh
+$ qcup -c 8 -s /local/path/to/assets -t project-name
 ```
