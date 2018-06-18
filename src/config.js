@@ -1,9 +1,6 @@
 'use strict';
 
-const path = require('path');
-const os = require('os');
-
-const configFile = path.join(os.homedir(), '.qcup.json');
+const { configFile } = require('./constants');
 const config = require(configFile);
 
 function checkFieldsExistence(config) {
@@ -38,24 +35,4 @@ function checkFieldsExistence(config) {
 
 checkFieldsExistence(config);
 
-const { AppId, SecretId, SecretKey, Bucket, Region } = config;
-
-module.exports = {
-  auth: {
-    SecretId,
-    SecretKey,
-  },
-  location: {
-    Bucket: `${Bucket}-${AppId}`,
-    Region,
-  },
-};
-
-// basic concepts: https://cloud.tencent.com/document/product/436/6225
-// availible regions: https://cloud.tencent.com/document/product/436/6224"
-// {
-//   "SecretId": "AKIDBGA3gcuwPglgS3pfKpTzLYaQ4b4P5YO2",
-//   "SecretKey": "qdFg096tUyIUXO3Xqwsj2nS1SmwukOrC",
-//   "Bucket": "qcup-test-1252291541",
-//   "Region": "ap-guangzhou"
-// }
+module.exports = config;

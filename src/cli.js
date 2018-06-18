@@ -4,7 +4,6 @@
 
 const path = require('path');
 const yargs = require('yargs');
-const qcup = require('.');
 
 const argv = yargs
   .usage(
@@ -31,12 +30,23 @@ const argv = yargs
     describe: 'concurrent tasks',
     type: 'number',
   })
+  .option('g', {
+    demandOption: false,
+    describe: 'generate config sample',
+    type: 'boolean',
+  })
   .help('h').argv;
 
-const sourceDirectory = path.isAbsolute(argv.s)
-  ? argv.s
-  : path.join(process.cwd(), argv.s);
-const targetDirectory = argv.t;
-const concurrency = argv.c;
+if (argv.g) {
+  const generateConfigSample = require('./generate-config');
+  generateConfigSample();
+} else {
+  const qcup = require('.');
+  const sourceDirectory = path.isAbsolute(argv.s)
+    ? argv.s
+    : path.join(process.cwd(), argv.s);
+  const targetDirectory = argv.t;
+  const concurrency = argv.c;
 
-qcup(targetDirectory, sourceDirectory, concurrency);
+  qcup(targetDirectory, sourceDirectory, concurrency);
+}

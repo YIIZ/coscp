@@ -5,7 +5,18 @@ const draft = require('./lib/draft-log');
 const report = require('./report');
 const upload = require('./upload');
 const checkUploadPermission = require('./check-upload-permission');
-const { auth, location } = require('./config');
+const config = require('./config');
+
+const { AppId, SecretId, SecretKey, Bucket, Region } = config;
+
+const auth = {
+  SecretId,
+  SecretKey,
+};
+const location = {
+  Bucket: `${Bucket}-${AppId}`,
+  Region,
+};
 
 function isEmpty(tasks) {
   return tasks.length === 0;
