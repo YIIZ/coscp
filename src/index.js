@@ -3,11 +3,9 @@
 const fg = require('fast-glob');
 const draft = require('./lib/draft-log');
 const report = require('./report');
-const initUpload = require('./upload');
+const upload = require('./upload');
 const checkUploadPermission = require('./check-upload-permission');
 const { auth, location } = require('./config');
-
-const upload = initUpload(auth, location);
 
 function isEmpty(tasks) {
   return tasks.length === 0;
@@ -28,32 +26,41 @@ function dispatchTasks(workers, tasks, state) {
       const { key, filePath } = tasks.pop();
 
       // async uploader
-      upload(key, filePath, 3, {
-        onStart: () => {
-          worker.log(` [HASH] ${key}`);
+      upload(
+        key,
+        filePath,
+        3,
+        {
+          auth,
+          location,
         },
-        onProgress: progress => {
-          worker.log(` [${progress.toString().padStart(3)}%] ${key} `);
-        },
-        onSucceed: () => {
-          worker.idle = true;
-          state.succeed++;
-          state.handled++;
-          report(state);
-        },
-        onSkip: () => {
-          worker.idle = true;
-          state.skip++;
-          state.handled++;
-          report(state);
-        },
-        onFailed: () => {
-          worker.idle = true;
-          state.failed++;
-          state.handled++;
-          report(state);
-        },
-      });
+        {
+          onStart: () => {
+            worker.log(` [HASH] ${key}`);
+          },
+          onProgress: progress => {
+            worker.log(` [${progress.toString().padStart(3)}%] ${key} `);
+          },
+          onSucceed: () => {
+            worker.idle = true;
+            state.succeed++;
+            state.handled++;
+            report(state);
+          },
+          onSkip: () => {
+            worker.idle = true;
+            state.skip++;
+            state.handled++;
+            report(state);
+          },
+          onFailed: () => {
+            worker.idle = true;
+            state.failed++;
+            state.handled++;
+            report(state);
+          },
+        }
+      );
     } else if (
       worker.idle === true &&
       isEmpty(tasks) &&
