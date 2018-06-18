@@ -2,7 +2,13 @@
 
 const COS = require('cos-nodejs-sdk-v5');
 
+const COS_KEY = Symbol.for('COS');
+
 module.exports = function promisedCOS(auth, location) {
+  if (global[COS_KEY]) {
+    return global[COS_KEY];
+  }
+
   const cos = new COS(auth);
 
   const handler = {
@@ -21,5 +27,8 @@ module.exports = function promisedCOS(auth, location) {
     },
   };
 
-  return new Proxy(cos, handler);
+  const proxy = new Proxy(cos, handler);
+  global[COS_KEY] = proxy;
+
+  return proxy;
 };
