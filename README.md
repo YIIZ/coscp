@@ -26,6 +26,14 @@ $ npm install -g https://bitbucket.org/teambun/qcup.git#0.2.0
 $ npm install -g qcup
 ```
 
+## 配置
+
+```sh
+$ qcup -g
+```
+
+生成 `~/.qcup.js` 后，阅读其中的参考链接，设置相关字段。
+
 ## 使用说明
 
 ```sh
