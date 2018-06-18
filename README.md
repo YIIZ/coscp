@@ -17,7 +17,7 @@
 $ npm install -g https://bitbucket.org/teambun/qcup.git
 
 # specific version, for example:
-$ npm install -g https://bitbucket.org/teambun/qcup.git#0.1.0
+$ npm install -g https://bitbucket.org/teambun/qcup.git#0.2.0
 ```
 
 通过 NPM (暂未提供):
