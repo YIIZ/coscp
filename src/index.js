@@ -25,7 +25,7 @@ function isEmpty(tasks) {
 function generateWorkers(amount) {
   let workers = [];
   for (let i = 0; i < amount; i++) {
-    workers.push({ idle: true, complete: false, log: draft('[IDLE]') });
+    workers.push({ idle: true, complete: false, log: draft(' [IDLE]') });
   }
   return workers;
 }
@@ -134,6 +134,7 @@ async function qcup(prefix, dir, concurrency = 5) {
     report(state);
 
     const workers = generateWorkers(concurrency);
+
     const loop = () => {
       dispatchTasks(workers, tasks, state);
       setImmediate(loop);
