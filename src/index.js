@@ -4,7 +4,7 @@ const fg = require('fast-glob');
 const draft = require('./lib/draft-log');
 const report = require('./report');
 const initUpload = require('./upload');
-const checkUploadable = require('./check-uploadable');
+const checkUploadPermission = require('./check-upload-permission');
 const { auth, location } = require('./config');
 
 const upload = initUpload(auth, location);
@@ -91,7 +91,10 @@ function replaceFilePath(filePath, source, target) {
 
 async function qcup(prefix, dir, concurrency = 5) {
   try {
-    await checkUploadable();
+    if (!(await checkUploadPermission(auth, location))) {
+      // eslint-disable-next-line
+      process.exit(1);
+    }
 
     const files = await scanFiles(dir);
 

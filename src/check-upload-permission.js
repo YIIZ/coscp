@@ -1,7 +1,6 @@
 const promisedCOS = require('./lib/promised-cos');
-const { auth, location } = require('./config');
 
-async function checkUploadable() {
+async function checkUploadPermission(auth, location) {
   const cos = promisedCOS(auth, location);
 
   let statusCode;
@@ -15,20 +14,22 @@ async function checkUploadable() {
   let errorMsg = '';
   switch (statusCode) {
     case 200:
-      return;
+      break;
     case 404:
-      errorMsg = 'Bucket is invalid.';
+      errorMsg = 'Invalid bucket.';
       break;
     default:
-      errorMsg = 'You have no permission of uploading to this bucket.';
+      errorMsg = 'No permission for using this bucket.';
   }
 
   if (errorMsg) {
     // eslint-disable-next-line
     console.error(errorMsg);
+    return false;
     // eslint-disable-next-line
-    process.exit(1);
+  } else {
+    return true;
   }
 }
 
-module.exports = checkUploadable;
+module.exports = checkUploadPermission;
