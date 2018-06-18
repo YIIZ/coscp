@@ -9,7 +9,7 @@ const config = require(configFile);
 checkFieldsExistence(config);
 
 function checkFieldsExistence(config) {
-  const fields = ['SecretId', 'SecretKey', 'Bucket', 'Region'];
+  const fields = ['AppId', 'SecretId', 'SecretKey', 'Bucket', 'Region'];
   const missingFields = [];
 
   for (const field of fields) {
@@ -38,7 +38,7 @@ function checkFieldsExistence(config) {
   }
 }
 
-const { SecretId, SecretKey, Bucket, Region } = config;
+const { AppId, SecretId, SecretKey, Bucket, Region } = config;
 
 module.exports = {
   auth: {
@@ -46,14 +46,13 @@ module.exports = {
     SecretKey,
   },
   location: {
-    Bucket,
+    Bucket: `${Bucket}-${AppId}`,
     Region,
   },
 };
 
 // basic concepts: https://cloud.tencent.com/document/product/436/6225
 // availible regions: https://cloud.tencent.com/document/product/436/6224"
-
 // {
 //   "SecretId": "AKIDBGA3gcuwPglgS3pfKpTzLYaQ4b4P5YO2",
 //   "SecretKey": "qdFg096tUyIUXO3Xqwsj2nS1SmwukOrC",
