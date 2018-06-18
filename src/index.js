@@ -4,6 +4,7 @@ const fg = require('fast-glob');
 const draft = require('./lib/draft-log');
 const report = require('./report');
 const initUpload = require('./upload');
+const checkUploadable = require('./check-uploadable');
 const { auth, location } = require('./config');
 
 const upload = initUpload(auth, location);
@@ -89,32 +90,43 @@ function replaceFilePath(filePath, source, target) {
 }
 
 async function qcup(prefix, dir, concurrency = 5) {
-  const files = await scanFiles(dir);
+  try {
+    await checkUploadable();
 
-  const tasks = files.map(file => {
-    const key = replaceFilePath(file, dir, prefix);
-    const filePath = file;
-    return { key, filePath };
-  });
+    const files = await scanFiles(dir);
 
-  // upload
-  const state = {
-    total: tasks.length,
-    handled: 0,
-    succeed: 0,
-    skip: 0,
-    failed: 0,
-  };
+    const tasks = files.map(file => {
+      const key = replaceFilePath(file, dir, prefix);
+      const filePath = file;
+      return { key, filePath };
+    });
 
-  report(state);
+    // upload
+    const state = {
+      total: tasks.length,
+      handled: 0,
+      succeed: 0,
+      skip: 0,
+      failed: 0,
+    };
 
-  const workers = generateWorkers(concurrency);
-  const loop = () => {
-    dispatchTasks(workers, tasks, state);
-    setImmediate(loop);
-  };
+    report(state);
 
-  loop();
+    const workers = generateWorkers(concurrency);
+    const loop = () => {
+      dispatchTasks(workers, tasks, state);
+      setImmediate(loop);
+    };
+
+    loop();
+  } catch (e) {
+    // eslint-disable-next-line
+    console.log('Congratulations! You have found a uncatched error.');
+    // eslint-disable-next-line
+    console.log('Please report it to the developer.');
+    // eslint-disable-next-line
+    console.error(e);
+  }
 }
 
 module.exports = qcup;
