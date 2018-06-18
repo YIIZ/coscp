@@ -3,12 +3,12 @@
 const runFn = require('run-function');
 const md5File = require('md5-file/promise');
 const COS = require('./promised-cos');
-const { authInfo, location } = require('./config');
+const { auth, location } = require('./config');
 
 const CACHE_TIME = 365;
 const HASH_KEY = 'x-cos-meta-hash';
 
-const cos = new COS(authInfo, location);
+const cos = new COS(auth, location);
 const cacheHeader = getCacheHeader(CACHE_TIME);
 
 async function upload(
