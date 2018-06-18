@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
-const path = require('path');
-const yargs = require('yargs');
+const path = require('path')
+const yargs = require('yargs')
 
 const argv = yargs
   .usage(
@@ -35,18 +35,18 @@ const argv = yargs
     describe: 'generate config sample',
     type: 'boolean',
   })
-  .help('h').argv;
+  .help('h').argv
 
 if (argv.g) {
-  const generateConfigSample = require('./generate-config');
-  generateConfigSample();
+  const generateConfigSample = require('./generate-config')
+  generateConfigSample()
 } else {
-  const qcup = require('.');
+  const qcup = require('.')
   const sourceDirectory = path.isAbsolute(argv.s)
     ? argv.s
-    : path.join(process.cwd(), argv.s);
-  const targetDirectory = argv.t;
-  const concurrency = argv.c;
+    : path.join(process.cwd(), argv.s)
+  const targetDirectory = argv.t
+  const concurrency = argv.c
 
-  qcup(targetDirectory, sourceDirectory, concurrency);
+  qcup(targetDirectory, sourceDirectory, concurrency)
 }

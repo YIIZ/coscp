@@ -1,32 +1,32 @@
-'use strict';
+'use strict'
 
-const Table = require('cli-table');
-const draft = require('./lib/draft-log');
+const Table = require('cli-table')
+const draft = require('./lib/draft-log')
 
-const drafts = [];
+const drafts = []
 
 function report({ total, handled, succeed, skip, failed }) {
-  const formatLength = total.toString().length;
-  const progress = `${handled.toString().padStart(formatLength)} / ${total}`;
+  const formatLength = total.toString().length
+  const progress = `${handled.toString().padStart(formatLength)} / ${total}`
 
   const table = new Table({
     colAligns: ['left', 'right'],
-  });
-  table.push({ progress }, { succeed }, { skip }, { failed });
+  })
+  table.push({ progress }, { succeed }, { skip }, { failed })
   const lines = table
     .toString()
     .split('\n')
-    .map(line => ` ${line}`);
+    .map(line => ` ${line}`)
 
   if (drafts.length === 0) {
     lines.forEach((_, i) => {
-      drafts[i] = draft();
-    });
+      drafts[i] = draft()
+    })
   }
 
   for (const [i, line] of lines.entries()) {
-    drafts[i](line);
+    drafts[i](line)
   }
 }
 
-module.exports = report;
+module.exports = report
