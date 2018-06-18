@@ -1,7 +1,7 @@
 'use strict';
 
 const Table = require('cli-table');
-const draft = require('./draft-log');
+const draft = require('./lib/draft-log');
 
 const drafts = [];
 

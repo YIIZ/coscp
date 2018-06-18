@@ -2,7 +2,7 @@
 
 const path = require('path');
 const fg = require('fast-glob');
-const draft = require('./draft-log');
+const draft = require('./lib/draft-log');
 const report = require('./report');
 const initUpload = require('./upload');
 const { auth, location } = require('./config');

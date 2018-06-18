@@ -2,7 +2,7 @@
 
 const runFn = require('run-function');
 const md5File = require('md5-file/promise');
-const promisedCOS = require('./promised-cos');
+const promisedCOS = require('./lib/promised-cos');
 
 const CACHE_TIME = 365;
 const HASH_KEY = 'x-cos-meta-hash';

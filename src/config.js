@@ -6,9 +6,9 @@ const os = require('os');
 const configFile = path.join(os.homedir(), '.qcup.json');
 const config = require(configFile);
 
-checkConfigExistence(config);
+checkFieldsExistence(config);
 
-function checkConfigExistence(config) {
+function checkFieldsExistence(config) {
   const fields = ['SecretId', 'SecretKey', 'Bucket', 'Region'];
   const missingFields = [];
 
