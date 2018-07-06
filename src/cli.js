@@ -58,4 +58,6 @@ switch (command) {
     break
   default:
     yargs.showHelp()
+    // eslint-disable-next-line
+    process.exit(0)
 }
