@@ -18,7 +18,7 @@
 $ npm install -g https://bitbucket.org/teambun/qcup.git
 
 # specific version, for example:
-$ npm install -g https://bitbucket.org/teambun/qcup.git#0.2.0
+$ npm install -g https://bitbucket.org/teambun/qcup.git#1.0.0
 ```
 
 通过 NPM (暂未提供):
@@ -30,7 +30,7 @@ $ npm install -g qcup
 ## 配置
 
 ```sh
-$ qcup -g
+$ qcup gen-config
 ```
 
 生成 `~/.qcup.js` 后，阅读其中的参考链接，设置相关字段。
@@ -44,5 +44,5 @@ $ qcup --help
 ## 举例
 
 ```sh
-$ qcup -c 8 -s /local/path/to/assets -t project-name
+$ qcup load -c 8 -s /local/path/to/assets -t project-name
 ```
