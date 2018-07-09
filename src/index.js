@@ -1,104 +1,11 @@
 'use strict'
 
 const fg = require('fast-glob')
+const pMap = require('p-map')
 const draft = require('./lib/draft-log')
 const report = require('./report')
 const upload = require('./upload')
 const checkUploadPermission = require('./check-upload-permission')
-const config = require('./config')
-
-const { AppId, SecretId, SecretKey, Bucket, Region } = config
-
-const auth = {
-  SecretId,
-  SecretKey,
-}
-const location = {
-  Bucket: `${Bucket}-${AppId}`,
-  Region,
-}
-
-function isEmpty(tasks) {
-  return tasks.length === 0
-}
-
-function generateWorkers(amount) {
-  let workers = []
-  for (let i = 0; i < amount; i++) {
-    workers.push({ idle: true, complete: false, log: draft(' [IDLE]') })
-  }
-  return workers
-}
-
-function dispatchTasks(workers, tasks, state) {
-  for (const worker of workers) {
-    if (worker.idle === true && !isEmpty(tasks)) {
-      worker.idle = false
-      const { key, filePath } = tasks.pop()
-
-      // async uploader
-      upload(
-        key,
-        filePath,
-        3,
-        {
-          auth,
-          location,
-        },
-        {
-          onStart: () => {
-            worker.log(` [HASH] ${key}`)
-          },
-          onProgress: progress => {
-            worker.log(` [${progress.toString().padStart(3)}%] ${key} `)
-          },
-          onSucceed: () => {
-            worker.idle = true
-            state.succeed++
-            state.handled++
-            report(state)
-          },
-          onSkip: () => {
-            worker.idle = true
-            state.skip++
-            state.handled++
-            report(state)
-          },
-          onFailed: () => {
-            worker.idle = true
-            state.failed++
-            state.handled++
-            report(state)
-          },
-        }
-      )
-    } else if (
-      worker.idle === true &&
-      isEmpty(tasks) &&
-      worker.complete === false
-    ) {
-      worker.complete = true
-      worker.log(' [COMPLETE]')
-    }
-
-    if (state.handled === state.total) {
-      const end = workers.every(worker => worker.idle === true)
-      if (end) {
-        workers.forEach(() => {
-          process.stdout.write('\u001b[1A') // move cursor up
-          process.stdout.write('\u001b[2K') // clear entire line
-        })
-
-        const peopleInOurTeam = 4
-        const smilingFace = String.fromCodePoint(128526)
-        process.stdout.write(
-          ` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`
-        )
-        process.exit(0) // eslint-disable-line
-      }
-    }
-  }
-}
 
 async function scanFiles(dir) {
   const trailingSlashRE = /\/$/
@@ -113,13 +20,97 @@ function replaceFilePath(filePath, source, target) {
   return filePath.replace(re, target)
 }
 
-async function qcup(prefix, dir, concurrency = 5) {
-  try {
-    if (!(await checkUploadPermission(auth, location))) {
-      // eslint-disable-next-line
-      process.exit(1)
-    }
+function generateLogger(amount) {
+  const logger = []
+  while (amount > 0) {
+    logger.push({ idle: true, log: draft(' [IDLE]') })
+    amount--
+  }
+  return logger
+}
 
+// convert task object to Promise object.
+function convertTask(task, logger, state, qcloud) {
+  logger.idle = false
+  const { key, filePath } = task
+
+  const onStart = () => {
+    state.handling++
+    logger.log(` [HASH] ${key}`)
+  }
+  const onProgress = progress => {
+    logger.log(` [${progress.toString().padStart(3)}%] ${key} `)
+  }
+  const onSucceed = () => {
+    logger.idle = true
+    state.succeed++
+    state.handled++
+    report(state)
+  }
+  const onSkip = () => {
+    logger.idle = true
+    state.skip++
+    state.handled++
+    report(state)
+  }
+  const onFailed = () => {
+    logger.idle = true
+    state.failed++
+    state.handled++
+    report(state)
+  }
+
+  const retryTime = 3
+  const callbacks = {
+    onStart,
+    onProgress,
+    onSucceed,
+    onSkip,
+    onFailed,
+  }
+
+  return upload(key, filePath, retryTime, qcloud, callbacks).then(() => {
+    if (state.handling === state.total) {
+      logger.log(' [COMPLETE]')
+    }
+  })
+}
+
+function cleanupWorkerLog(count) {
+  while (count > 0) {
+    process.stdout.write('\u001b[1A') // move cursor up
+    process.stdout.write('\u001b[2K') // clear entire line
+    count--
+  }
+}
+
+function cheers() {
+  const peopleInOurTeam = 4
+  const smilingFace = String.fromCodePoint(128526)
+  process.stdout.write(` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`)
+}
+
+async function qcup(prefix, dir, concurrency = 5, config) {
+  const { AppId, SecretId, SecretKey, Bucket, Region } = config
+  const auth = {
+    SecretId,
+    SecretKey,
+  }
+  const location = {
+    Bucket: `${Bucket}-${AppId}`,
+    Region,
+  }
+  const qcloud = {
+    auth,
+    location,
+  }
+
+  const permission = await checkUploadPermission(auth, location)
+  if (!permission.pass) {
+    throw new Error(permission.message)
+  }
+
+  try {
     const files = await scanFiles(dir)
 
     const tasks = files.map(file => {
@@ -128,9 +119,9 @@ async function qcup(prefix, dir, concurrency = 5) {
       return { key, filePath }
     })
 
-    // upload
     const state = {
       total: tasks.length,
+      handling: 0,
       handled: 0,
       succeed: 0,
       skip: 0,
@@ -139,14 +130,18 @@ async function qcup(prefix, dir, concurrency = 5) {
 
     report(state)
 
-    const workers = generateWorkers(concurrency)
+    const loggers = generateLogger(concurrency)
+    await pMap(
+      tasks,
+      task => {
+        const logger = loggers.find(i => i.idle)
+        return convertTask(task, logger, state, qcloud)
+      },
+      { concurrency }
+    )
 
-    const loop = () => {
-      dispatchTasks(workers, tasks, state)
-      setImmediate(loop)
-    }
-
-    loop()
+    cleanupWorkerLog(concurrency)
+    cheers()
   } catch (e) {
     // eslint-disable-next-line
     console.log('Congratulations! You have found a uncatched error.')

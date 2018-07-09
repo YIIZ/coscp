@@ -5,6 +5,7 @@
 const path = require('path')
 const yargs = require('yargs')
 const qcup = require('.')
+const config = require('./config')
 const generateConfigSample = require('./generate-config')
 
 const argv = yargs
@@ -41,23 +42,36 @@ const argv = yargs
   .command('gen-config', 'generate sample configuration')
   .help('h').argv
 
-const command = argv._[0]
-switch (command) {
-  // eslint-disable-next-line
-  case 'load':
-    const sourceDirectory = path.isAbsolute(argv.s)
-      ? argv.s
-      : path.join(process.cwd(), argv.s)
-    const targetDirectory = argv.t
-    const concurrency = argv.c
+async function main() {
+  const command = argv._[0]
 
-    qcup(targetDirectory, sourceDirectory, concurrency)
-    break
-  case 'gen-config':
-    generateConfigSample()
-    break
-  default:
-    yargs.showHelp()
+  try {
+    switch (command) {
+      // eslint-disable-next-line
+      case 'load':
+        const sourceDirectory = path.isAbsolute(argv.s)
+          ? argv.s
+          : path.join(process.cwd(), argv.s)
+        const targetDirectory = argv.t
+        const concurrency = argv.c
+
+        await qcup(targetDirectory, sourceDirectory, concurrency, config)
+        break
+      case 'gen-config':
+        generateConfigSample()
+        break
+      default:
+        yargs.showHelp()
+    }
+
     // eslint-disable-next-line
     process.exit(0)
+  } catch (e) {
+    // eslint-disable-next-line
+    console.error(e.message)
+    // eslint-disable-next-line
+    process.exit(1)
+  }
 }
+
+main()

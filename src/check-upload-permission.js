@@ -22,14 +22,7 @@ async function checkUploadPermission(auth, location) {
       errorMsg = 'No permission for using this bucket.'
   }
 
-  if (errorMsg) {
-    // eslint-disable-next-line
-    console.error(errorMsg)
-    return false
-    // eslint-disable-next-line
-  } else {
-    return true
-  }
+  return errorMsg ? { pass: false, message: errorMsg } : { pass: true }
 }
 
 module.exports = checkUploadPermission
