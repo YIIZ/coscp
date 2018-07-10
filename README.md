@@ -34,7 +34,7 @@ $ npm install -g qcup
 $ qcup gen-config
 ```
 
-After generating `~/.qcup.js`, read instructions in the file, set it properly
+After generating `~/.qcup.js`, read instructions in the file, set it properly.
 
 ## Usage
 
