@@ -5,7 +5,12 @@
 const path = require('path')
 const yargs = require('yargs')
 const qcup = require('.')
-const getConfig = require('./config')
+const {
+  getConfigFromFile,
+  getConfigFromENV,
+  getConfigFromCLI,
+  checkConfigFields,
+} = require('./config')
 const generateConfigSample = require('./generate-config')
 
 const argv = yargs
@@ -42,6 +47,26 @@ const argv = yargs
         describe: 'do not show the interactive logs',
         type: 'boolean',
       })
+      .option('app-id', {
+        describe: 'overrides app id in config file ',
+        type: 'string',
+      })
+      .option('secret-id', {
+        describe: 'overrides secret id in config file ',
+        type: 'string',
+      })
+      .option('secret-key', {
+        describe: 'overrides secret key in config file ',
+        type: 'string',
+      })
+      .option('region', {
+        describe: 'overrides region in config file',
+        type: 'string',
+      })
+      .option('bucket', {
+        describe: 'overrides bucket in config file',
+        type: 'string',
+      })
       .demandOption(
         ['s', 't'],
         'Please provide both source and target to work with this tool.'
@@ -65,7 +90,14 @@ async function main() {
         const concurrency = argv.c
         const interactive = !argv.n
 
-        const config = await getConfig()
+        const config = Object.assign(
+          {},
+          await getConfigFromFile(),
+          await getConfigFromENV(),
+          await getConfigFromCLI(argv)
+        )
+        checkConfigFields(config)
+
         await qcup(
           sourceDirectory,
           targetDirectory,

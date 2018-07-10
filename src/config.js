@@ -11,7 +11,7 @@ function generateMissingFieldsMessage(fields) {
   return message.join('\n')
 }
 
-function checkFields(config) {
+function checkConfigFields(config) {
   const fields = ['AppId', 'SecretId', 'SecretKey', 'Bucket', 'Region']
   const missingFields = []
 
@@ -23,11 +23,23 @@ function checkFields(config) {
 
   if (missingFields.length !== 0) {
     const message = generateMissingFieldsMessage(missingFields)
-    throw new Error(message)
+    const error = new Error(message)
+    error.known = true
+    throw error
   }
 }
 
-async function getConfig() {
+function filterEmpty(object) {
+  Object.entries(object).forEach(([k, v]) => {
+    if (!v) {
+      delete object[k]
+    }
+  })
+
+  return object
+}
+
+async function getConfigFromFile() {
   try {
     const explorer = cosmiconfig('qcup')
     const result = await explorer.search()
@@ -36,12 +48,35 @@ async function getConfig() {
     }
 
     const { config } = result
-    checkFields(config)
-
-    return config
+    return filterEmpty(config)
   } catch (e) {
     throw e
   }
 }
 
-module.exports = getConfig
+function getConfigFromENV() {
+  return filterEmpty({
+    AppId: process.env.QCLOUD_APP_ID,
+    SecretId: process.env.QCLOUD_SECRET_ID,
+    SecretKey: process.env.QCLOUD_SECRET_KEY,
+    Region: process.env.QCLOUD_REGION,
+    Bucket: process.env.QCLOUD_BUCKET,
+  })
+}
+
+function getConfigFromCLI(argv) {
+  return filterEmpty({
+    AppId: argv['app-id'],
+    SecretId: argv['secret-id'],
+    SecretKey: argv['secret-key'],
+    Region: argv.region,
+    Bucket: argv.bucket,
+  })
+}
+
+module.exports = {
+  getConfigFromFile,
+  getConfigFromENV,
+  getConfigFromCLI,
+  checkConfigFields,
+}
