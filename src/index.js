@@ -117,10 +117,17 @@ async function noninteractiveUpload(
     failed: 0,
   }
 
-  const mapper = task => convertTask(task, state, qcloud)
+  const failedToUpload = []
+  const mapper = task =>
+    convertTask(task, state, qcloud).then(({ success, key }) => {
+      if (!success) {
+        failedToUpload.push(key)
+      }
+    })
+
   await pMap(tasks, mapper, {
     concurrency,
-  })
+  }).then(() => failedToUpload)
 }
 
 async function interactiveUpload(
