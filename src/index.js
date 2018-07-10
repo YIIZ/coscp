@@ -89,7 +89,7 @@ function cleanupWorkerLog(count) {
 }
 
 function cheers() {
-  const peopleInOurTeam = 4
+  const peopleInOurTeam = 5
   const smilingFace = String.fromCodePoint(128526)
   process.stdout.write(` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`)
 }
