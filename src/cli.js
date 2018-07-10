@@ -21,17 +21,26 @@ const argv = yargs
   .command('load', 'upload files', function(yargs) {
     return yargs
       .option('s', {
+        alias: 'source',
         describe: 'source directoy contains files waiting for uploading',
         type: 'string',
       })
       .option('t', {
+        alias: 'target',
         describe: 'target directory',
         type: 'string',
       })
       .option('c', {
+        alias: 'concurrency',
         default: 5,
         describe: 'concurrent tasks',
         type: 'number',
+      })
+      .option('n', {
+        alias: 'no-interactive',
+        default: false,
+        describe: 'do not show the interactive logs',
+        type: 'boolean',
       })
       .demandOption(
         ['s', 't'],
@@ -54,9 +63,16 @@ async function main() {
           : path.join(process.cwd(), argv.s)
         const targetDirectory = argv.t
         const concurrency = argv.c
+        const interactive = !argv.n
 
         const config = await getConfig()
-        await qcup(sourceDirectory, targetDirectory, concurrency, config)
+        await qcup(
+          sourceDirectory,
+          targetDirectory,
+          concurrency,
+          config,
+          interactive
+        )
         break
       case 'gen-config':
         generateConfigSample()
