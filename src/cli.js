@@ -67,8 +67,18 @@ async function main() {
     // eslint-disable-next-line
     process.exit(0)
   } catch (e) {
-    // eslint-disable-next-line
-    console.error(e.message)
+    if (!e.known) {
+      // eslint-disable-next-line
+      console.log('Oops! You have found a uncatched error.')
+      // eslint-disable-next-line
+      console.log('Please report it to the developer.')
+      // eslint-disable-next-line
+      console.error(e)
+    } else {
+      // eslint-disable-next-line
+      console.error(e.message)
+    }
+
     // eslint-disable-next-line
     process.exit(1)
   }

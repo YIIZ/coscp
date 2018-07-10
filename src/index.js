@@ -2,7 +2,7 @@
 
 const fg = require('fast-glob')
 const pMap = require('p-map')
-const draft = require('./lib/draft-log')
+const log = require('./log')
 const report = require('./report')
 const upload = require('./upload')
 const checkUploadPermission = require('./check-upload-permission')
@@ -20,44 +20,47 @@ function replaceFilePath(filePath, source, target) {
   return filePath.replace(re, target)
 }
 
-function generateLogger(amount) {
-  const logger = []
+function generateLogFns(amount) {
+  const logFns = []
   while (amount > 0) {
-    logger.push({ idle: true, log: draft(' [IDLE]') })
+    const logFn = log()
+    logFn.idle = true
+
+    logFns.push(logFn)
     amount--
   }
-  return logger
+  return logFns
 }
 
 // convert task object to Promise object.
-function convertTask(task, logger, state, qcloud) {
-  logger.idle = false
+function convertTask(task, state, qcloud, reportFn, logFn) {
+  logFn && (logFn.idle = false)
   const { key, filePath } = task
 
   const onStart = () => {
     state.handling++
-    logger.log(` [HASH] ${key}`)
+    logFn && logFn(` [HASH] ${key}`)
   }
   const onProgress = progress => {
-    logger.log(` [${progress.toString().padStart(3)}%] ${key} `)
+    logFn && logFn(` [${progress.toString().padStart(3)}%] ${key} `)
   }
   const onSucceed = () => {
-    logger.idle = true
+    logFn && (logFn.idle = true)
     state.succeed++
     state.handled++
-    report(state)
+    reportFn && reportFn(state)
   }
   const onSkip = () => {
-    logger.idle = true
+    logFn && (logFn.idle = true)
     state.skip++
     state.handled++
-    report(state)
+    reportFn && reportFn(state)
   }
   const onFailed = () => {
-    logger.idle = true
+    logFn && (logFn.idle = true)
     state.failed++
     state.handled++
-    report(state)
+    reportFn && reportFn(state)
   }
 
   const retryTime = 3
@@ -69,10 +72,11 @@ function convertTask(task, logger, state, qcloud) {
     onFailed,
   }
 
-  return upload(key, filePath, retryTime, qcloud, callbacks).then(() => {
+  return upload(key, filePath, retryTime, qcloud, callbacks).then(result => {
     if (state.handling === state.total) {
-      logger.log(' [COMPLETE]')
+      logFn && logFn(' [COMPLETE]')
     }
+    return result
   })
 }
 
@@ -90,7 +94,82 @@ function cheers() {
   process.stdout.write(` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`)
 }
 
-async function qcup(sourceDirectory, targetDirectory, concurrency = 5, config) {
+async function noninteractiveUpload(
+  sourceDirectory,
+  targetDirectory,
+  concurrency,
+  qcloud
+) {
+  const files = await scanFiles(sourceDirectory)
+
+  const tasks = files.map(file => {
+    const key = replaceFilePath(file, sourceDirectory, targetDirectory)
+    const filePath = file
+    return { key, filePath }
+  })
+
+  const state = {
+    total: tasks.length,
+    handling: 0,
+    handled: 0,
+    succeed: 0,
+    skip: 0,
+    failed: 0,
+  }
+
+  const mapper = task => convertTask(task, state, qcloud)
+  await pMap(tasks, mapper, {
+    concurrency,
+  })
+}
+
+async function interactiveUpload(
+  sourceDirectory,
+  targetDirectory,
+  concurrency,
+  qcloud
+) {
+  const reportFn = report
+  const files = await scanFiles(sourceDirectory)
+
+  const tasks = files.map(file => {
+    const key = replaceFilePath(file, sourceDirectory, targetDirectory)
+    const filePath = file
+    return { key, filePath }
+  })
+
+  const state = {
+    total: tasks.length,
+    handling: 0,
+    handled: 0,
+    succeed: 0,
+    skip: 0,
+    failed: 0,
+  }
+
+  reportFn(state)
+
+  const logFns = generateLogFns(concurrency)
+  await pMap(
+    tasks,
+    task => {
+      const logFn = logFns.find(i => i.idle)
+      return convertTask(task, state, qcloud, reportFn, logFn)
+    },
+    { concurrency }
+  )
+
+  cleanupWorkerLog(concurrency)
+  cheers()
+}
+
+async function qcup(
+  sourceDirectory,
+  targetDirectory,
+  concurrency = 5,
+  config,
+  interactive = true
+) {
   const { AppId, SecretId, SecretKey, Bucket, Region } = config
   const auth = {
     SecretId,
@@ -107,48 +186,25 @@ async function qcup(sourceDirectory, targetDirectory, concurrency = 5, config) {
 
   const permission = await checkUploadPermission(auth, location)
   if (!permission.pass) {
-    throw new Error(permission.message)
+    const error = new Error(permission.message)
+    error.known = true
+    throw error
   }
 
-  try {
-    const files = await scanFiles(sourceDirectory)
-
-    const tasks = files.map(file => {
-      const key = replaceFilePath(file, sourceDirectory, targetDirectory)
-      const filePath = file
-      return { key, filePath }
-    })
-
-    const state = {
-      total: tasks.length,
-      handling: 0,
-      handled: 0,
-      succeed: 0,
-      skip: 0,
-      failed: 0,
-    }
-
-    report(state)
-
-    const loggers = generateLogger(concurrency)
-    await pMap(
-      tasks,
-      task => {
-        const logger = loggers.find(i => i.idle)
-        return convertTask(task, logger, state, qcloud)
-      },
-      { concurrency }
+  if (interactive) {
+    await interactiveUpload(
+      sourceDirectory,
+      targetDirectory,
+      concurrency,
+      qcloud
     )
-
-    cleanupWorkerLog(concurrency)
-    cheers()
-  } catch (e) {
-    // eslint-disable-next-line
-    console.log('Congratulations! You have found a uncatched error.')
-    // eslint-disable-next-line
-    console.log('Please report it to the developer.')
-    // eslint-disable-next-line
-    console.error(e)
+  } else {
+    await noninteractiveUpload(
+      sourceDirectory,
+      targetDirectory,
+      concurrency,
+      qcloud
+    )
   }
 }
 
