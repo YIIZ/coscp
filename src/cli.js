@@ -5,7 +5,7 @@
 const path = require('path')
 const yargs = require('yargs')
 const qcup = require('.')
-const config = require('./config')
+const getConfig = require('./config')
 const generateConfigSample = require('./generate-config')
 
 const argv = yargs
@@ -55,6 +55,7 @@ async function main() {
         const targetDirectory = argv.t
         const concurrency = argv.c
 
+        const config = await getConfig()
         await qcup(sourceDirectory, targetDirectory, concurrency, config)
         break
       case 'gen-config':

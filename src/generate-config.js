@@ -25,7 +25,7 @@ function generateConfigSample() {
   } else {
     fs.writeFileSync(configFile, sample)
     // eslint-disable-next-line
-    console.log(`Generated configuration placed at ${configFile}`)
+    console.log(`place sample config file at ${configFile}`)
   }
 }
 

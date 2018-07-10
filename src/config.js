@@ -1,9 +1,17 @@
 'use strict'
 
-const { configFile } = require('./constants')
-const config = require(configFile)
+const cosmiconfig = require('cosmiconfig')
 
-function checkFieldsExistence(config) {
+function generateMissingFieldsMessage(fields) {
+  const message = ['check config file, ensure following fields is provided:']
+  fields.forEach(field => {
+    message.push(`* ${field}`)
+  })
+
+  return message.join('\n')
+}
+
+function checkFields(config) {
   const fields = ['AppId', 'SecretId', 'SecretKey', 'Bucket', 'Region']
   const missingFields = []
 
@@ -14,25 +22,26 @@ function checkFieldsExistence(config) {
   }
 
   if (missingFields.length !== 0) {
-    printMissingFields(missingFields)
-    // eslint-disable-next-line
-    process.exit(1)
-  }
-
-  function printMissingFields(fields) {
-    const feedback = [
-      `check ${configFile}, ensure following fields is provided:`,
-    ]
-
-    fields.forEach(field => {
-      feedback.push(`* ${field}`)
-    })
-
-    // eslint-disable-next-line
-    console.error(feedback.join('\n'))
+    const message = generateMissingFieldsMessage(missingFields)
+    throw new Error(message)
   }
 }
 
-checkFieldsExistence(config)
+async function getConfig() {
+  try {
+    const explorer = cosmiconfig('qcup')
+    const result = await explorer.search()
+    if (result === null) {
+      throw new Error('config file is missing.')
+    }
 
-module.exports = config
+    const { config } = result
+    checkFields(config)
+
+    return config
+  } catch (e) {
+    throw e
+  }
+}
+
+module.exports = getConfig

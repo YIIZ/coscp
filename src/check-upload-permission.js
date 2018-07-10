@@ -19,7 +19,7 @@ async function checkUploadPermission(auth, location) {
       errorMsg = 'Invalid bucket.'
       break
     default:
-      errorMsg = 'No permission for using this bucket.'
+      errorMsg = 'no permission for uploading, check your config file.'
   }
 
   return errorMsg ? { pass: false, message: errorMsg } : { pass: true }
