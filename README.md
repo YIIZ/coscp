@@ -46,7 +46,7 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 
 ## Programmatic API
 
-### `async function qcup(prefix, dir, concurrency, config)`
+### `async function qcup(sourceDirectory, targetDirectory, concurrency, config)`
 
 | Argument          | Type                                                   | Default Value |
 | ----------------- | ------------------------------------------------------ | ------------- |
