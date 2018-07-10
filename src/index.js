@@ -90,7 +90,7 @@ function cheers() {
   process.stdout.write(` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`)
 }
 
-async function qcup(prefix, dir, concurrency = 5, config) {
+async function qcup(sourceDirectory, targetDirectory, concurrency = 5, config) {
   const { AppId, SecretId, SecretKey, Bucket, Region } = config
   const auth = {
     SecretId,
@@ -111,10 +111,10 @@ async function qcup(prefix, dir, concurrency = 5, config) {
   }
 
   try {
-    const files = await scanFiles(dir)
+    const files = await scanFiles(sourceDirectory)
 
     const tasks = files.map(file => {
-      const key = replaceFilePath(file, dir, prefix)
+      const key = replaceFilePath(file, sourceDirectory, targetDirectory)
       const filePath = file
       return { key, filePath }
     })

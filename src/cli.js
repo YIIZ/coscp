@@ -55,7 +55,7 @@ async function main() {
         const targetDirectory = argv.t
         const concurrency = argv.c
 
-        await qcup(targetDirectory, sourceDirectory, concurrency, config)
+        await qcup(sourceDirectory, targetDirectory, concurrency, config)
         break
       case 'gen-config':
         generateConfigSample()

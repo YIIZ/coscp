@@ -4,14 +4,15 @@
 
 > Efficient file uploader for QCloud.
 
-## 功能
+## Features
 
-- 并发支持
-- 上传报表
+- Concurrency Support
+- Report Sheet
+- HTTP Cache Header
 
-## 安装
+## Installation
 
-通过 Git URL:
+via Git URL:
 
 ```sh
 # latest version
@@ -21,28 +22,39 @@ $ npm install -g https://bitbucket.org/teambun/qcup.git
 $ npm install -g https://bitbucket.org/teambun/qcup.git#1.0.1
 ```
 
-通过 NPM (暂未提供):
+via NPM (unavailable):
 
 ```sh
 $ npm install -g qcup
 ```
 
-## 配置
+## Config
 
 ```sh
 $ qcup gen-config
 ```
 
-生成 `~/.qcup.js` 后，阅读其中的参考链接，设置相关字段。
+After generating `~/.qcup.js`, read instructions in the file, set it properly
 
-## 使用说明
+## Usage
 
 ```sh
 $ qcup --help
-```
 
-## 举例
-
-```sh
 $ qcup load -c 8 -s /local/path/to/assets -t project-name
 ```
+
+## Programmatic API
+
+### `async function qcup(prefix, dir, concurrency, config)`
+
+| Argument          | Type                                                   | Default Value |
+| ----------------- | ------------------------------------------------------ | ------------- |
+| `sourceDirectory` | `String`                                               | NA            |
+| `targetDirectory` | `String`                                               | NA            |
+| `concurrency`     | `Number`                                               | 5             |
+| `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
+
+## LICENSE
+
+Unlicensed
