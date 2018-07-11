@@ -3,7 +3,7 @@
 const cosmiconfig = require('cosmiconfig')
 
 function generateMissingFieldsMessage(fields) {
-  const message = ['check config file, ensure following fields is provided:']
+  const message = ['check config, ensure following fields is provided:']
   fields.forEach(field => {
     message.push(`* ${field}`)
   })
@@ -42,12 +42,9 @@ function filterEmpty(object) {
 async function getConfigFromFile() {
   try {
     const explorer = cosmiconfig('qcup')
-    const result = await explorer.search()
-    if (result === null) {
-      throw new Error('config file is missing.')
-    }
+    const result = (await explorer.search()) || {}
 
-    const { config } = result
+    const { config = {} } = result
     return filterEmpty(config)
   } catch (e) {
     throw e

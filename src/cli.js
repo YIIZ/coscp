@@ -96,6 +96,7 @@ async function main() {
           await getConfigFromENV(),
           await getConfigFromCLI(argv)
         )
+
         checkConfigFields(config)
 
         await qcup(
