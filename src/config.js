@@ -1,6 +1,7 @@
 'use strict'
 
 const cosmiconfig = require('cosmiconfig')
+const { configFile } = require('./constants')
 
 function generateMissingFieldsMessage(fields) {
   const message = ['check config, ensure following fields is provided:']
@@ -42,8 +43,7 @@ function filterEmpty(object) {
 async function getConfigFromFile() {
   try {
     const explorer = cosmiconfig('qcup')
-    const result = (await explorer.search()) || {}
-
+    const result = (await explorer.load(configFile)) || {}
     const { config = {} } = result
     return filterEmpty(config)
   } catch (e) {
