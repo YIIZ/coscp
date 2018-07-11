@@ -19,7 +19,7 @@ via Git URL:
 $ npm install -g https://bitbucket.org/teambun/qcup.git
 
 # specific version, for example:
-$ npm install -g https://bitbucket.org/teambun/qcup.git#1.2.0
+$ npm install -g https://bitbucket.org/teambun/qcup.git#1.3.0
 ```
 
 via NPM (unavailable):
@@ -34,7 +34,7 @@ $ npm install -g qcup
 $ qcup gen-config
 ```
 
-After generating `~/.qcup.js`, read instructions in the file, set it properly.
+After generating `~/.qcuprc.js`, read instructions in the file, set it properly.
 
 ## Usage
 
@@ -52,8 +52,9 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | ----------------- | ------------------------------------------------------ | ------------- |
 | `sourceDirectory` | `String`                                               | NA            |
 | `targetDirectory` | `String`                                               | NA            |
-| `concurrency`     | `Number`                                               | 5             |
+| `concurrency`     | `Number`                                               | `5`           |
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
+| `interactive`     | `Boolean`                                              | `true`        |
 
 ## LICENSE
 
