@@ -19,7 +19,7 @@ via Git URL:
 $ npm install -g https://bitbucket.org/teambun/qcup.git
 
 # specific version, for example:
-$ npm install -g https://bitbucket.org/teambun/qcup.git#1.3.0
+$ npm install -g https://bitbucket.org/teambun/qcup.git#<tag>
 ```
 
 via NPM (unavailable):
