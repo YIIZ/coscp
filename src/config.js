@@ -47,7 +47,11 @@ async function getConfigFromFile() {
     const { config = {} } = result
     return filterEmpty(config)
   } catch (e) {
-    throw e
+    if (e.code === 'ENOENT') {
+      return {}
+    } else {
+      throw e
+    }
   }
 }
 
