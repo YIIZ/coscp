@@ -1,8 +1,8 @@
 {
-  "name": "qcup",
+  "name": "@teambun/qcup",
   "version": "1.4.0",
   "description": "Efficient file uploader for QCloud.",
-  "repository": "qcup",
+  "repository": "https://m31271n@bitbucket.org/teambun/qcup.git",
   "bin": "src/cli.js",
   "engines": {
     "node": ">=8"
@@ -18,7 +18,7 @@
   "main": "src/index.js",
   "keywords": [
     "cli",
-    ""
+    "qcloud"
   ],
   "dependencies": {
     "cli-table": "^0.3.1",
@@ -54,5 +54,5 @@
       ]
     }
   },
-  "private": true
+  "license": "MIT"
 }
