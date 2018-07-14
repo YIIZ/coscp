@@ -33,7 +33,7 @@ function generateLogFns(amount) {
 }
 
 // convert task object to Promise object.
-function convertTask(task, state, qcloud, reportFn, logFn) {
+function convertTask(task, state, qcloud, cache, reportFn, logFn) {
   logFn && (logFn.idle = false)
   const { key, filePath } = task
 
@@ -63,16 +63,17 @@ function convertTask(task, state, qcloud, reportFn, logFn) {
     reportFn && reportFn(state)
   }
 
-  const retryTime = 3
-  const callbacks = {
+  const options = {
     onStart,
     onProgress,
     onSucceed,
     onSkip,
     onFailed,
+    cache,
+    retryTime: 5,
   }
 
-  return upload(key, filePath, retryTime, qcloud, callbacks).then(result => {
+  return upload(key, filePath, qcloud, options).then(result => {
     if (state.handling === state.total) {
       logFn && logFn(' [COMPLETE]')
     }
@@ -98,7 +99,8 @@ async function noninteractiveUpload(
   sourceDirectory,
   targetDirectory,
   concurrency,
-  qcloud
+  qcloud,
+  cache
 ) {
   const files = await scanFiles(sourceDirectory)
 
@@ -118,7 +120,7 @@ async function noninteractiveUpload(
   }
 
   const mapper = task =>
-    convertTask(task, state, qcloud).then(({ success, key }) => {
+    convertTask(task, state, qcloud, cache).then(({ success, key }) => {
       if (success) {
         process.stdout.write(`+ ${key}\n`)
       } else {
@@ -135,7 +137,8 @@ async function interactiveUpload(
   sourceDirectory,
   targetDirectory,
   concurrency,
-  qcloud
+  qcloud,
+  cache
 ) {
   const reportFn = report
   const files = await scanFiles(sourceDirectory)
@@ -162,7 +165,7 @@ async function interactiveUpload(
     tasks,
     task => {
       const logFn = logFns.find(i => i.idle)
-      return convertTask(task, state, qcloud, reportFn, logFn)
+      return convertTask(task, state, qcloud, cache, reportFn, logFn)
     },
     { concurrency }
   )
@@ -176,7 +179,8 @@ async function qcup(
   targetDirectory,
   concurrency = 5,
   config,
-  interactive = true
+  interactive = true,
+  cache = true
 ) {
   const { AppId, SecretId, SecretKey, Bucket, Region } = config
   const auth = {
@@ -204,14 +208,16 @@ async function qcup(
       sourceDirectory,
       targetDirectory,
       concurrency,
-      qcloud
+      qcloud,
+      cache
     )
   } else {
     await noninteractiveUpload(
       sourceDirectory,
       targetDirectory,
       concurrency,
-      qcloud
+      qcloud,
+      cache
     )
   }
 }

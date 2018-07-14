@@ -12,9 +12,16 @@ const cacheHeader = getCacheHeader(cacheTime)
 async function upload(
   key,
   filePath,
-  retryTime = 3,
   { auth, location },
-  { onStart, onProgress, onSucceed, onFailed, onSkip, cache = true }
+  {
+    onStart,
+    onProgress,
+    onSucceed,
+    onFailed,
+    onSkip,
+    cache = true,
+    retryTime = 3,
+  }
 ) {
   const cos = promisedCOS(auth, location)
 
