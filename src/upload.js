@@ -14,7 +14,7 @@ async function upload(
   filePath,
   retryTime = 3,
   { auth, location },
-  { onStart, onProgress, onSucceed, onFailed, onSkip }
+  { onStart, onProgress, onSucceed, onFailed, onSkip, cache = true }
 ) {
   const cos = promisedCOS(auth, location)
 
@@ -32,33 +32,34 @@ async function upload(
 
   const localHash = await md5File(filePath)
 
-  if (remoteHash !== localHash) {
-    const params = Object.assign(cacheHeader, {
-      Key: key,
-      FilePath: filePath,
-      onProgress: function(progressData) {
-        const progress = Math.round(progressData.percent * 100)
-        runFn(onProgress, progress)
-      },
-    })
-    params[HASH_KEY] = localHash
-
-    for (let time = 0; time < retryTime; time++) {
-      try {
-        runFn(onProgress, 0)
-        await cos.sliceUploadFile(params)
-        runFn(onSucceed, key)
-        return succeed(key)
-      } catch (e) {
-        if (time >= retryTime) {
-          runFn(onFailed, key)
-          return failed(key)
-        }
-      }
-    }
-  } else {
+  if (remoteHash === localHash) {
     runFn(onSkip, key)
     return succeed(key)
+  }
+
+  const header = cache && !isHTML(key) ? cacheHeader : {}
+  const params = Object.assign({}, header, {
+    Key: key,
+    FilePath: filePath,
+    onProgress: function(progressData) {
+      const progress = Math.round(progressData.percent * 100)
+      runFn(onProgress, progress)
+    },
+  })
+  params[HASH_KEY] = localHash
+
+  for (let time = 0; time < retryTime; time++) {
+    try {
+      runFn(onProgress, 0)
+      await cos.sliceUploadFile(params)
+      runFn(onSucceed, key)
+      return succeed(key)
+    } catch (e) {
+      if (time >= retryTime) {
+        runFn(onFailed, key)
+        return failed(key)
+      }
+    }
   }
 }
 
@@ -70,6 +71,10 @@ function getCacheHeader(day) {
     CacheControl: s,
     Expires: new Date(Date.now() + ms).toUTCString(),
   }
+}
+
+function isHTML(key) {
+  return /html?$/.test(key)
 }
 
 function succeed(key) {
