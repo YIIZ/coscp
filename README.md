@@ -12,20 +12,8 @@
 
 ## Installation
 
-via Git URL:
-
 ```sh
-# latest version
-$ npm install -g https://bitbucket.org/teambun/qcup.git
-
-# specific version, for example:
-$ npm install -g https://bitbucket.org/teambun/qcup.git#<tag>
-```
-
-via NPM (unavailable):
-
-```sh
-$ npm install -g qcup
+$ npm install -g @teambun/qcup
 ```
 
 ## Config
@@ -46,7 +34,7 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 
 ## Programmatic API
 
-### `async function qcup(sourceDirectory, targetDirectory, concurrency, config)`
+### `async function qcup(sourceDirectory, targetDirectory, concurrency, config, interactive, cache)`
 
 | Argument          | Type                                                   | Default Value |
 | ----------------- | ------------------------------------------------------ | ------------- |
@@ -55,7 +43,8 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | `concurrency`     | `Number`                                               | `5`           |
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
 | `interactive`     | `Boolean`                                              | `true`        |
+| `cache`           | `Boolean`                                              | `true`        |
 
 ## LICENSE
 
-Unlicensed
+MIT
