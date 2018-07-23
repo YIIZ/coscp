@@ -26,9 +26,11 @@ async function upload(
   runFn(onStart)
 
   let remoteHash = ''
+  let remoteCacheControl = ''
   try {
     const meta = await cos.headObject({ Key: key })
     remoteHash = meta.headers[HASH_KEY]
+    remoteCacheControl = meta.headers['cache-control']
   } catch (e) {
     if (e.error !== 'Not Found') {
       throw e
@@ -36,15 +38,15 @@ async function upload(
   }
 
   const localHash = await md5File(filePath)
+  const headers = getCacheHeader(key, cache, cacheTime)
+  const localCacheControl = headers['CacheControl']
 
-  if (remoteHash === localHash) {
+  if (remoteHash === localHash && remoteCacheControl === localCacheControl) {
     runFn(onSkip, key)
     return succeed(key)
   }
 
-  const header = getCacheHeader(key, cache, cacheTime)
-
-  const params = Object.assign({}, header, {
+  const params = Object.assign({}, headers, {
     Key: key,
     FilePath: filePath,
     onProgress: function(progressData) {
@@ -52,6 +54,7 @@ async function upload(
       runFn(onProgress, progress)
     },
   })
+
   params[HASH_KEY] = localHash
 
   for (let time = 0; time < retryTime; time++) {
@@ -73,7 +76,7 @@ function cacheHeader(seconds) {
   const ms = seconds * 1000
 
   return {
-    CacheControl: seconds || 'no-cache',
+    CacheControl: seconds ? `max-age=${seconds}` : 'no-cache',
     Expires: new Date(Date.now() + ms).toUTCString(),
   }
 }
