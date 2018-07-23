@@ -73,7 +73,7 @@ function cacheHeader(seconds) {
   const ms = seconds * 1000
 
   return {
-    CacheControl: seconds,
+    CacheControl: seconds || 'no-cache',
     Expires: new Date(Date.now() + ms).toUTCString(),
   }
 }
@@ -87,6 +87,8 @@ function getCacheHeader(key, cache, cacheTime) {
     } else {
       header = isHTML(key) ? cacheHeader(60) : cacheHeader(3600 * 24 * 365)
     }
+  } else {
+    header = cacheHeader(0)
   }
 
   return header

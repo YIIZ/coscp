@@ -48,7 +48,7 @@ const argv = yargs
         type: 'boolean',
       })
       .option('cache-time', {
-        describe: 'overrides default cache time',
+        describe: 'overrides default cache time (unit: second)',
         type: 'number',
       })
       .option('x', {
