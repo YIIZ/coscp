@@ -33,7 +33,7 @@ function generateLogFns(amount) {
 }
 
 // convert task object to Promise object.
-function convertTask(task, state, qcloud, cache, reportFn, logFn) {
+function convertTask(task, state, qcloud, cache, cacheTime, reportFn, logFn) {
   logFn && (logFn.idle = false)
   const { key, filePath } = task
 
@@ -70,6 +70,7 @@ function convertTask(task, state, qcloud, cache, reportFn, logFn) {
     onSkip,
     onFailed,
     cache,
+    cacheTime,
     retryTime: 5,
   }
 
@@ -100,7 +101,8 @@ async function noninteractiveUpload(
   targetDirectory,
   concurrency,
   qcloud,
-  cache
+  cache,
+  cacheTime
 ) {
   const files = await scanFiles(sourceDirectory)
 
@@ -120,13 +122,15 @@ async function noninteractiveUpload(
   }
 
   const mapper = task =>
-    convertTask(task, state, qcloud, cache).then(({ success, key }) => {
-      if (success) {
-        process.stdout.write(`+ ${key}\n`)
-      } else {
-        process.stdout.write(`- ${key}\n`)
+    convertTask(task, state, qcloud, cache, cacheTime).then(
+      ({ success, key }) => {
+        if (success) {
+          process.stdout.write(`+ ${key}\n`)
+        } else {
+          process.stdout.write(`- ${key}\n`)
+        }
       }
-    })
+    )
 
   await pMap(tasks, mapper, {
     concurrency,
@@ -138,7 +142,8 @@ async function interactiveUpload(
   targetDirectory,
   concurrency,
   qcloud,
-  cache
+  cache,
+  cacheTime
 ) {
   const reportFn = report
   const files = await scanFiles(sourceDirectory)
@@ -165,7 +170,7 @@ async function interactiveUpload(
     tasks,
     task => {
       const logFn = logFns.find(i => i.idle)
-      return convertTask(task, state, qcloud, cache, reportFn, logFn)
+      return convertTask(task, state, qcloud, cache, cacheTime, reportFn, logFn)
     },
     { concurrency }
   )
@@ -180,7 +185,8 @@ async function qcup(
   concurrency = 5,
   config,
   interactive = true,
-  cache = true
+  cache = true,
+  cacheTime
 ) {
   const { AppId, SecretId, SecretKey, Bucket, Region } = config
   const auth = {
@@ -209,7 +215,8 @@ async function qcup(
       targetDirectory,
       concurrency,
       qcloud,
-      cache
+      cache,
+      cacheTime
     )
   } else {
     await noninteractiveUpload(
@@ -217,7 +224,8 @@ async function qcup(
       targetDirectory,
       concurrency,
       qcloud,
-      cache
+      cache,
+      cacheTime
     )
   }
 }

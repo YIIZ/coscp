@@ -47,6 +47,10 @@ const argv = yargs
         describe: 'disable interactive logs',
         type: 'boolean',
       })
+      .option('cache-time', {
+        describe: 'overrides default cache time',
+        type: 'number',
+      })
       .option('x', {
         alias: 'no-cache',
         default: false,
@@ -96,6 +100,7 @@ async function main() {
         const concurrency = argv.c
         const interactive = !argv.n
         const cache = !argv.x
+        const cacheTime = argv.cacheTime
 
         const config = Object.assign(
           {},
@@ -112,7 +117,8 @@ async function main() {
           concurrency,
           config,
           interactive,
-          cache
+          cache,
+          cacheTime
         )
         break
       case 'gen-config':

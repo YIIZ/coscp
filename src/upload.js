@@ -17,6 +17,7 @@ async function upload(
     onFailed,
     onSkip,
     cache = true,
+    cacheTime,
     retryTime = 3,
   }
 ) {
@@ -41,11 +42,7 @@ async function upload(
     return succeed(key)
   }
 
-  const header = cache
-    ? isHTML(key)
-      ? getCacheHeader(60)
-      : getCacheHeader(3600 * 24 * 365)
-    : {}
+  const header = getCacheHeader(key, cache, cacheTime)
 
   const params = Object.assign({}, header, {
     Key: key,
@@ -72,13 +69,27 @@ async function upload(
   }
 }
 
-function getCacheHeader(seconds) {
+function cacheHeader(seconds) {
   const ms = seconds * 1000
 
   return {
     CacheControl: seconds,
     Expires: new Date(Date.now() + ms).toUTCString(),
   }
+}
+
+function getCacheHeader(key, cache, cacheTime) {
+  let header = {}
+
+  if (cache) {
+    if (cacheTime) {
+      header = cacheHeader(cacheTime)
+    } else {
+      header = isHTML(key) ? cacheHeader(60) : cacheHeader(3600 * 24 * 365)
+    }
+  }
+
+  return header
 }
 
 function isHTML(key) {
