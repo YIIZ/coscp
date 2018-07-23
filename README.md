@@ -8,7 +8,7 @@
 
 - Concurrency Support
 - Report Sheet
-- HTTP Cache Header
+- Enable / Disable / Customize HTTP Cache
 
 ## Installation
 
@@ -44,6 +44,7 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
 | `interactive`     | `Boolean`                                              | `true`        |
 | `cache`           | `Boolean`                                              | `true`        |
+| `cacheTime`       | `Number`                                               | NA            |
 
 ## LICENSE
 
