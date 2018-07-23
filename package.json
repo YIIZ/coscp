@@ -1,6 +1,6 @@
 {
   "name": "@teambun/qcup",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Efficient file uploader for QCloud.",
   "repository": "https://m31271n@bitbucket.org/teambun/qcup.git",
   "bin": "src/cli.js",
