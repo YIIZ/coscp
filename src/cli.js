@@ -44,11 +44,11 @@ const argv = yargs
       .option('n', {
         alias: 'no-interactive',
         default: false,
-        describe: 'do not show the interactive logs',
+        describe: 'disable interactive logs',
         type: 'boolean',
       })
       .option('x', {
-        alias: 'disable-cache',
+        alias: 'no-cache',
         default: false,
         describe: 'disable cache',
         type: 'boolean',
