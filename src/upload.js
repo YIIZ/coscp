@@ -3,11 +3,8 @@
 const runFn = require('run-function')
 const md5File = require('md5-file/promise')
 const promisedCOS = require('./lib/promised-cos')
-const cacheTime = require('./constants')
 
 const HASH_KEY = 'x-cos-meta-hash'
-
-const cacheHeader = getCacheHeader(cacheTime)
 
 async function upload(
   key,
@@ -44,7 +41,12 @@ async function upload(
     return succeed(key)
   }
 
-  const header = cache && !isHTML(key) ? cacheHeader : {}
+  const header = cache
+    ? isHTML(key)
+      ? getCacheHeader(60)
+      : getCacheHeader(3600 * 24 * 365)
+    : {}
+
   const params = Object.assign({}, header, {
     Key: key,
     FilePath: filePath,
@@ -70,12 +72,11 @@ async function upload(
   }
 }
 
-function getCacheHeader(day) {
-  const s = 3600 * 24 * day
-  const ms = s * 1000
+function getCacheHeader(seconds) {
+  const ms = seconds * 1000
 
   return {
-    CacheControl: s,
+    CacheControl: seconds,
     Expires: new Date(Date.now() + ms).toUTCString(),
   }
 }
