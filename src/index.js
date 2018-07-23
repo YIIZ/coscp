@@ -1,6 +1,7 @@
 'use strict'
 
 const fg = require('fast-glob')
+const path = require('path')
 const pMap = require('p-map')
 const log = require('./log')
 const report = require('./report')
@@ -16,8 +17,13 @@ async function scanFiles(dir) {
 }
 
 function replaceFilePath(filePath, source, target) {
-  const re = new RegExp(`^${source}`, 'gu')
-  return filePath.replace(re, target)
+  const prefix = source.normalize().replace(/\/$/, '')
+  const prefixRE = new RegExp(`^${prefix}`, 'gu')
+  const subKey = filePath.replace(prefixRE, '')
+  target = target.normalize()
+
+  const key = path.join(target, subKey)
+  return key
 }
 
 function generateLogFns(amount) {
