@@ -37,7 +37,7 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 ### `async function qcup(sourceDirectory, targetDirectory, concurrency, config, interactive, cache)`
 
 | Argument          | Type                                                   | Default Value |
-| ----------------- | ------------------------------------------------------ | ------------- |
+| :---------------- | :----------------------------------------------------- | :------------ |
 | `sourceDirectory` | `String`                                               | NA            |
 | `targetDirectory` | `String`                                               | NA            |
 | `concurrency`     | `Number`                                               | `5`           |
@@ -45,6 +45,20 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | `interactive`     | `Boolean`                                              | `true`        |
 | `cache`           | `Boolean`                                              | `true`        |
 | `cacheTime`       | `Number`                                               | NA            |
+
+## Cache Policy
+
+Default expire time:
+
+| File Type |     Expire |
+| :-------- | ---------: |
+| HTML      | 60 seconds |
+| Others    |     1 year |
+
+You can customize it with:
+
+- `--no-cache`: disable all cache
+- `--cache-time`: override default expire time
 
 ## LICENSE
 
