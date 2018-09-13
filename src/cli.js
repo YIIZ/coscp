@@ -37,7 +37,8 @@ const argv = yargs
         type: 'boolean',
       })
       .option('cache', {
-        describe: 'specify cache time (unit: second)',
+        describe:
+          "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
         type: 'number',
       })
       .option('app-id', {

@@ -28,9 +28,33 @@ After generating `~/.qcuprc.js`, read instructions in the file, set it properly.
 
 ```sh
 $ qcup --help
-
-$ qcup load -c 8 -s /local/path/to/assets -t project-name
 ```
+
+## Cache Policy
+
+Default cache policy for development without `--cache` option:
+
+| File Type / File Name |     Expire |
+| :-------------------- | ---------: |
+| All                   | 60 seconds |
+
+Cache policy for production with `--cache auto` option:
+
+| File Type / File Name |     Expire |
+| :-------------------- | ---------: |
+| Type - HTML           | 60 seconds |
+| Type - Others         |     1 year |
+
+Cache policy for files in certain pattern:
+
+| File Type / File Name |     Expire |
+| :-------------------- | ---------: |
+| Name - `/\.stale\./`  | 60 seconds |
+
+Customize cache policy with `--cache` option, such as:
+
+- `--cache 0`: disable cache.
+- `--cache 3600`: set cache time to 1 hour.
 
 ## Programmatic API
 
@@ -43,22 +67,7 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | `concurrency`     | `Number`                                               | `5`           |
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
 | `interactive`     | `Boolean`                                              | `true`        |
-| `cacheTime`       | `Number`                                               | NA            |
-
-## Cache Policy
-
-Default cache policy without `--cache` option:
-
-| File Type / File Name |     Expire |
-| :-------------------- | ---------: |
-| Type - HTML           | 60 seconds |
-| Type - Others         |     1 year |
-| Name - `/\.stale\./`  | 60 seconds |
-
-Customize cache policy with `--cache` option, such as:
-
-- `--cache 0`: disable cache.
-- `--cache 3600`: set cache time to 1 hour.
+| `cache`           | `Number`                                               | NA            |
 
 ## LICENSE
 
