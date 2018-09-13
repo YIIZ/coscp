@@ -14,27 +14,16 @@ const {
 const generateConfigSample = require('./generate-config')
 
 const argv = yargs
-  .usage(
-    [
-      'Usage: $0',
-      '<command>',
-      '-s [source directory]',
-      '-t [target directory]',
-      '-c [concurrency]',
-    ].join(' ')
-  )
+  .usage(['Usage: $0', '<command>'].join(' '))
   .command('load', 'upload files', function(yargs) {
     return yargs
-      .option('s', {
-        alias: 'source',
-        describe: 'source directoy contains files waiting for uploading',
-        type: 'string',
-      })
-      .option('t', {
-        alias: 'target',
-        describe: 'target directory',
-        type: 'string',
-      })
+      .usage(
+        ['Usage: $0', 'load', '[options]', '<source>', '<target>'].join(' ')
+      )
+      .demandCommand(
+        2,
+        'Please provide <source> and <target> before uploading.'
+      )
       .option('c', {
         alias: 'concurrency',
         default: 5,
@@ -71,11 +60,7 @@ const argv = yargs
         describe: 'overrides bucket in config file',
         type: 'string',
       })
-      .demandOption(
-        ['s', 't'],
-        'Please provide both source and target to work with this tool.'
-      )
-      .example('$0 load -c 8 -s /local/path/to/assets -t project-name')
+      .example('$0 load -c 8 --cache 60 local/path/to/assets project-name')
   })
   .command('gen-config', 'generate sample configuration')
   .help('h').argv
@@ -87,10 +72,12 @@ async function main() {
     switch (command) {
       // eslint-disable-next-line
       case 'load':
-        const sourceDirectory = path.isAbsolute(argv.s)
-          ? argv.s
-          : path.join(process.cwd(), argv.s)
-        const targetDirectory = argv.t
+        const source = argv._[1]
+        const target = argv._[2]
+        const sourceDirectory = path.isAbsolute(source)
+          ? source
+          : path.join(process.cwd(), source)
+        const targetDirectory = target
         const concurrency = argv.c
         const interactive = !argv.n
         const cache = argv.cache
