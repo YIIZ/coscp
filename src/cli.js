@@ -47,15 +47,9 @@ const argv = yargs
         describe: 'disable interactive logs',
         type: 'boolean',
       })
-      .option('cache-time', {
-        describe: 'overrides default cache time (unit: second)',
+      .option('cache', {
+        describe: 'specify cache time (unit: second)',
         type: 'number',
-      })
-      .option('x', {
-        alias: 'no-cache',
-        default: false,
-        describe: 'disable cache',
-        type: 'boolean',
       })
       .option('app-id', {
         describe: 'overrides app id in config file ',
@@ -99,8 +93,7 @@ async function main() {
         const targetDirectory = argv.t
         const concurrency = argv.c
         const interactive = !argv.n
-        const cache = !argv.x
-        const cacheTime = argv.cacheTime
+        const cache = argv.cache
 
         const config = Object.assign(
           {},
@@ -117,8 +110,7 @@ async function main() {
           concurrency,
           config,
           interactive,
-          cache,
-          cacheTime
+          cache
         )
         break
       case 'gen-config':

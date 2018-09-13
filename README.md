@@ -43,22 +43,22 @@ $ qcup load -c 8 -s /local/path/to/assets -t project-name
 | `concurrency`     | `Number`                                               | `5`           |
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
 | `interactive`     | `Boolean`                                              | `true`        |
-| `cache`           | `Boolean`                                              | `true`        |
 | `cacheTime`       | `Number`                                               | NA            |
 
 ## Cache Policy
 
-Default expire time:
+Default cache policy without `--cache` option:
 
-| File Type |     Expire |
-| :-------- | ---------: |
-| HTML      | 60 seconds |
-| Others    |     1 year |
+| File Type / File Name |     Expire |
+| :-------------------- | ---------: |
+| Type - HTML           | 60 seconds |
+| Type - Others         |     1 year |
+| Name - `/\.stale\./`  | 60 seconds |
 
-You can customize it with:
+Customize cache policy with `--cache` option, such as:
 
-- `--no-cache`: disable all cache
-- `--cache-time`: override default expire time
+- `--cache 0`: disable cache.
+- `--cache 3600`: set cache time to 1 hour.
 
 ## LICENSE
 

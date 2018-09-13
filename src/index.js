@@ -39,7 +39,7 @@ function generateLogFns(amount) {
 }
 
 // convert task object to Promise object.
-function convertTask(task, state, qcloud, cache, cacheTime, reportFn, logFn) {
+function convertTask(task, state, qcloud, cache, reportFn, logFn) {
   logFn && (logFn.idle = false)
   const { key, filePath } = task
 
@@ -76,7 +76,6 @@ function convertTask(task, state, qcloud, cache, cacheTime, reportFn, logFn) {
     onSkip,
     onFailed,
     cache,
-    cacheTime,
     retryTime: 5,
   }
 
@@ -97,7 +96,7 @@ function cleanupWorkerLog(count) {
 }
 
 function cheers() {
-  const peopleInOurTeam = 5
+  const peopleInOurTeam = 3
   const smilingFace = String.fromCodePoint(128526)
   process.stdout.write(` ${smilingFace.repeat(peopleInOurTeam)} Cheers!\n`)
 }
@@ -107,8 +106,7 @@ async function noninteractiveUpload(
   targetDirectory,
   concurrency,
   qcloud,
-  cache,
-  cacheTime
+  cache
 ) {
   const files = await scanFiles(sourceDirectory)
 
@@ -128,15 +126,13 @@ async function noninteractiveUpload(
   }
 
   const mapper = task =>
-    convertTask(task, state, qcloud, cache, cacheTime).then(
-      ({ success, key }) => {
-        if (success) {
-          process.stdout.write(`+ ${key}\n`)
-        } else {
-          process.stdout.write(`- ${key}\n`)
-        }
+    convertTask(task, state, qcloud, cache).then(({ success, key }) => {
+      if (success) {
+        process.stdout.write(`+ ${key}\n`)
+      } else {
+        process.stdout.write(`- ${key}\n`)
       }
-    )
+    })
 
   await pMap(tasks, mapper, {
     concurrency,
@@ -148,8 +144,7 @@ async function interactiveUpload(
   targetDirectory,
   concurrency,
   qcloud,
-  cache,
-  cacheTime
+  cache
 ) {
   const reportFn = report
   const files = await scanFiles(sourceDirectory)
@@ -176,7 +171,7 @@ async function interactiveUpload(
     tasks,
     task => {
       const logFn = logFns.find(i => i.idle)
-      return convertTask(task, state, qcloud, cache, cacheTime, reportFn, logFn)
+      return convertTask(task, state, qcloud, cache, reportFn, logFn)
     },
     { concurrency }
   )
@@ -191,8 +186,7 @@ async function qcup(
   concurrency = 5,
   config,
   interactive = true,
-  cache = true,
-  cacheTime
+  cache
 ) {
   const { AppId, SecretId, SecretKey, Bucket, Region } = config
   const auth = {
@@ -221,8 +215,7 @@ async function qcup(
       targetDirectory,
       concurrency,
       qcloud,
-      cache,
-      cacheTime
+      cache
     )
   } else {
     await noninteractiveUpload(
@@ -230,8 +223,7 @@ async function qcup(
       targetDirectory,
       concurrency,
       qcloud,
-      cache,
-      cacheTime
+      cache
     )
   }
 }

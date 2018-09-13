@@ -10,16 +10,7 @@ async function upload(
   key,
   filePath,
   { auth, location },
-  {
-    onStart,
-    onProgress,
-    onSucceed,
-    onFailed,
-    onSkip,
-    cache = true,
-    cacheTime,
-    retryTime = 3,
-  }
+  { onStart, onProgress, onSucceed, onFailed, onSkip, cache, retryTime = 3 }
 ) {
   const cos = promisedCOS(auth, location)
 
@@ -38,7 +29,7 @@ async function upload(
   }
 
   const localHash = await md5File(filePath)
-  const headers = getCacheHeader(key, cache, cacheTime)
+  const headers = getCacheHeader(key, cache)
   const localCacheControl = headers['CacheControl']
 
   if (remoteHash === localHash && remoteCacheControl === localCacheControl) {
@@ -81,17 +72,19 @@ function cacheHeader(seconds) {
   }
 }
 
-function getCacheHeader(key, cache, cacheTime) {
+function getCacheHeader(key, cache) {
   let header = {}
 
-  if (cache) {
-    if (cacheTime) {
-      header = cacheHeader(cacheTime)
-    } else {
-      header = isHTML(key) ? cacheHeader(60) : cacheHeader(3600 * 24 * 365)
-    }
+  if (isHTML(key)) {
+    header = cacheHeader(60)
   } else {
-    header = cacheHeader(0)
+    header = cacheHeader(3600 * 24 * 365)
+  }
+
+  if (cache || cache === 0) header = cacheHeader(cache)
+
+  if (isStale(key)) {
+    header = cacheHeader(60)
   }
 
   return header
@@ -99,6 +92,10 @@ function getCacheHeader(key, cache, cacheTime) {
 
 function isHTML(key) {
   return /html?$/.test(key)
+}
+
+function isStale(key) {
+  return /\.stale\./.test(key)
 }
 
 function succeed(key) {
