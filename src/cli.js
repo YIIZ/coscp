@@ -3,9 +3,9 @@
 'use strict'
 
 const path = require('path')
-const coscp = require('.')
-
 const program = require('caporal')
+const { version, description } = require('../package.json')
+const coscp = require('.')
 const {
   getConfigFromFile,
   getConfigFromENV,
@@ -16,8 +16,8 @@ const generateConfigSample = require('./generate-config')
 
 program
   // .command('upload')
-  .version(require('../package').version)
-  .description('upload files')
+  .version(version)
+  .description(description)
   // Caporal's angled brackets required not working?
   // https://github.com/mattallty/Caporal.js#glossary
   // .option('--tail <lines>', 'yes', null, null, true)
