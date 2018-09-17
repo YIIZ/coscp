@@ -86,7 +86,7 @@ async function main() {
         const configFromCLI = await getConfigFromCLI(argv)
         const configFromEnv = await getConfigFromENV()
         const configFromFile = await getConfigFromFile(
-          configFromCLI.Bucket || configFromEnv.Bucket
+          configFromCLI.bucket || configFromEnv.bucket
         )
         const config = Object.assign(
           {},

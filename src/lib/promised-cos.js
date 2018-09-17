@@ -4,9 +4,21 @@ const COS = require('cos-nodejs-sdk-v5')
 
 const COS_KEY = Symbol.for('COS')
 
-module.exports = function promisedCOS(auth, location) {
+module.exports = function promisedCOS(
+  { secretId, secretKey },
+  { bucket, region }
+) {
   if (global[COS_KEY]) {
     return global[COS_KEY]
+  }
+
+  const auth = {
+    SecretId: secretId,
+    SecretKey: secretKey,
+  }
+  const location = {
+    Bucket: bucket,
+    Region: region,
   }
 
   const cos = new COS(auth)

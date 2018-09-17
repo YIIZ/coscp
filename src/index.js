@@ -188,14 +188,14 @@ async function qcup(
   interactive = true,
   cache
 ) {
-  const { AppId, SecretId, SecretKey, Bucket, Region } = config
+  const { appId, secretId, secretKey, bucket, region } = config
   const auth = {
-    SecretId,
-    SecretKey,
+    secretId,
+    secretKey,
   }
   const location = {
-    Bucket: `${Bucket}-${AppId}`,
-    Region,
+    bucket: `${bucket}-${appId}`,
+    region,
   }
   const qcloud = {
     auth,
