@@ -79,25 +79,24 @@ function getCacheHeader(key, cache) {
   // set policy according --cache option
   if (Number.isNaN(cache)) {
     // --cache auto
-    header = isHTML(key) ? cacheHeader(60) : cacheHeader(3600 * 24 * 365)
+    header =
+      isHTML(key) || isStale(key)
+        ? cacheHeader(60)
+        : cacheHeader(3600 * 24 * 365)
   } else if (cache || cache === 0) {
     // --cache <number>
     header = cacheHeader(cache)
-  }
-
-  if (isStale(key)) {
-    header = cacheHeader(60)
   }
 
   return header
 }
 
 function isHTML(key) {
-  return /html?$/.test(key)
+  return /\.html?$/.test(key)
 }
 
 function isStale(key) {
-  return /\.stale\./.test(key)
+  return /\.stale\.\w+$/.test(key)
 }
 
 function succeed(key) {

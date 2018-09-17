@@ -42,14 +42,8 @@ Cache policy for production with `--cache auto` option:
 
 | File Type / File Name |     Expire |
 | :-------------------- | ---------: |
-| Type - HTML           | 60 seconds |
-| Type - Others         |     1 year |
-
-Cache policy for files in certain pattern:
-
-| File Type / File Name |     Expire |
-| :-------------------- | ---------: |
-| Name - `/\.stale\./`  | 60 seconds |
+| _.html, _.stale.\*    | 60 seconds |
+| Others                |     1 year |
 
 Customize cache policy with `--cache` option, such as:
 
