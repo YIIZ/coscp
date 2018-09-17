@@ -1,8 +1,8 @@
-# qcup
+# coscp
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-> Efficient file uploader for QCloud.
+> Efficient file transfer for QCloud COS.
 
 ## Features
 
@@ -13,21 +13,21 @@
 ## Installation
 
 ```sh
-$ npm install -g @teambun/qcup
+$ npm install -g @teambun/coscp
 ```
 
 ## Config
 
 ```sh
-$ qcup gen-config
+$ coscp gen-config
 ```
 
-After generating `~/.qcuprc.js`, read instructions in the file, set it properly.
+After generating `~/.coscprc.js`, read instructions in the file, set it properly.
 
 ## Usage
 
 ```sh
-$ qcup --help
+$ coscp source bucket:target
 ```
 
 ## Cache Policy
@@ -42,7 +42,7 @@ Cache policy for production with `--cache auto` option:
 
 | File Type / File Name |     Expire |
 | :-------------------- | ---------: |
-| _.html, _.stale.\*    | 60 seconds |
+| \*.html, \*.stale.\*  | 60 seconds |
 | Others                |     1 year |
 
 Customize cache policy with `--cache` option, such as:
@@ -52,7 +52,7 @@ Customize cache policy with `--cache` option, such as:
 
 ## Programmatic API
 
-### `async function qcup(sourceDirectory, targetDirectory, concurrency, config, interactive, cache)`
+### `async function coscp(sourceDirectory, targetDirectory, concurrency, config, interactive, cache)`
 
 | Argument          | Type                                                   | Default Value |
 | :---------------- | :----------------------------------------------------- | :------------ |
@@ -62,6 +62,12 @@ Customize cache policy with `--cache` option, such as:
 | `config`          | `Object{ AppId, SecretId, SecretKey, Bucket, Region }` | NA            |
 | `interactive`     | `Boolean`                                              | `true`        |
 | `cache`           | `Number`                                               | NA            |
+
+## TODO
+
+1.  multiple file transfer
+    https://stackoverflow.com/a/21110306/1793548
+2.  download `coscp bucket:files local`
 
 ## LICENSE
 

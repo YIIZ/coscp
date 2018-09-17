@@ -1,9 +1,13 @@
 'use strict'
 
 const fs = require('fs')
-const CONFIG_FILE = '.qcuprc.yml'
 
-const sample = `# config sample for qcup
+const path = require('path')
+const os = require('os')
+
+const CONFIG_FILE = path.join(os.homedir(), '.coscprc.yml')
+
+const sample = `# config sample for coscp
 # basic concepts: https://cloud.tencent.com/document/product/436/6225
 # availible regions: https://cloud.tencent.com/document/product/436/6224
 mybucket:

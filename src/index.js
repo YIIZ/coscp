@@ -180,7 +180,7 @@ async function interactiveUpload(
   cheers()
 }
 
-async function qcup(
+async function coscp(
   sourceDirectory,
   targetDirectory,
   concurrency = 5,
@@ -228,4 +228,4 @@ async function qcup(
   }
 }
 
-module.exports = qcup
+module.exports = coscp

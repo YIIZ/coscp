@@ -3,134 +3,83 @@
 'use strict'
 
 const path = require('path')
-const yargs = require('yargs')
-const qcup = require('.')
+const coscp = require('.')
+
+const program = require('caporal')
 const {
   getConfigFromFile,
   getConfigFromENV,
-  getConfigFromCLI,
+  filterEmpty,
   checkConfigFields,
 } = require('./config')
 const generateConfigSample = require('./generate-config')
 
-const argv = yargs
-  .usage(['Usage: $0', '<command>'].join(' '))
-  .command('load', 'upload files', function(yargs) {
-    return yargs
-      .usage(
-        ['Usage: $0', 'load', '[options]', '<source>', '<target>'].join(' ')
+program
+  // .command('upload')
+  .version(require('../package').version)
+  .description('upload files')
+  // Caporal's angled brackets required not working?
+  // https://github.com/mattallty/Caporal.js#glossary
+  // .option('--tail <lines>', 'yes', null, null, true)
+  .argument('<source>', 'source dir to upload')
+  .argument('<bucket:target>', 'bucket and dist dir')
+  .option('-k, --concurrency <n>', 'concurrent tasks', program.INT, 5)
+  .option('--no-interactive', 'disable interactive logs', program.BOOL, false)
+  .option(
+    '-c, --cache <n>',
+    "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
+    program.INT,
+    60
+  )
+  .option('--app-id <n>', 'overrides app id in config file')
+  .option('--secret-id <n>', 'overrides secret id in config file')
+  .option('--secret-key <n>', 'overrides secret key in config file')
+  .option('--region <n>', 'overrides region in config file')
+  .action(
+    async (
+      { source, bucketTarget },
+      { concurrency, noInteractive, cache, appId, secretId, secretKey, region }
+    ) => {
+      const [bucket, target] = bucketTarget.split(':')
+      const interactive = !noInteractive
+
+      const sourceDirectory = path.isAbsolute(source)
+        ? source
+        : path.join(process.cwd(), source)
+      const targetDirectory = target
+
+      const config = Object.assign(
+        { bucket },
+        await getConfigFromFile(bucket),
+        await getConfigFromENV(),
+        filterEmpty({ appId, secretId, secretKey, region })
       )
-      .demandCommand(
-        2,
-        'Please provide <source> and <target> before uploading.'
+
+      checkConfigFields(config)
+
+      await coscp(
+        sourceDirectory,
+        targetDirectory,
+        concurrency,
+        config,
+        interactive,
+        cache
       )
-      .option('c', {
-        alias: 'concurrency',
-        default: 5,
-        describe: 'concurrent tasks',
-        type: 'number',
-      })
-      .option('n', {
-        alias: 'no-interactive',
-        default: false,
-        describe: 'disable interactive logs',
-        type: 'boolean',
-      })
-      .option('cache', {
-        describe:
-          "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
-        type: 'number',
-      })
-      .option('app-id', {
-        describe: 'overrides app id in config file ',
-        type: 'string',
-      })
-      .option('secret-id', {
-        describe: 'overrides secret id in config file ',
-        type: 'string',
-      })
-      .option('secret-key', {
-        describe: 'overrides secret key in config file ',
-        type: 'string',
-      })
-      .option('region', {
-        describe: 'overrides region in config file',
-        type: 'string',
-      })
-      .option('bucket', {
-        describe: 'overrides bucket in config file',
-        type: 'string',
-      })
-      .example('$0 load -c 8 --cache 60 local/path/to/assets project-name')
-  })
-  .command('gen-config', 'generate sample configuration')
-  .help('h').argv
 
-async function main() {
-  const command = argv._[0]
-
-  try {
-    switch (command) {
-      // eslint-disable-next-line
-      case 'load':
-        const source = argv._[1]
-        const target = argv._[2]
-        const sourceDirectory = path.isAbsolute(source)
-          ? source
-          : path.join(process.cwd(), source)
-        const targetDirectory = target
-        const concurrency = argv.c
-        const interactive = !argv.n
-        const cache = argv.cache
-
-        const configFromCLI = await getConfigFromCLI(argv)
-        const configFromEnv = await getConfigFromENV()
-        const configFromFile = await getConfigFromFile(
-          configFromCLI.bucket || configFromEnv.bucket
-        )
-        const config = Object.assign(
-          {},
-          configFromFile,
-          configFromEnv,
-          configFromCLI
-        )
-
-        checkConfigFields(config)
-
-        await qcup(
-          sourceDirectory,
-          targetDirectory,
-          concurrency,
-          config,
-          interactive,
-          cache
-        )
-        break
-      case 'gen-config':
-        generateConfigSample()
-        break
-      default:
-        yargs.showHelp()
+      // TODO no manual exit
+      // eslint-disable-next-line no-process-exit
+      process.exit(0)
     }
+  )
 
-    // eslint-disable-next-line
+program
+  .command('gen-config')
+  .description('generate sample configuration')
+  .action(() => {
+    generateConfigSample()
+
+    // eslint-disable-next-line no-process-exit
     process.exit(0)
-  } catch (e) {
-    if (!e.known) {
-      // eslint-disable-next-line
-      console.log('Oops! You have found a uncatched error.')
-      // eslint-disable-next-line
-      console.log('Please report it to the developer.')
-      // eslint-disable-next-line
-      console.error(e)
-    } else {
-      // eslint-disable-next-line
-      console.error(e.message)
-    }
+  })
 
-    // eslint-disable-next-line
-    process.exit(1)
-  }
-}
-
-main()
+program.parse(process.argv)

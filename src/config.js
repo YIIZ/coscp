@@ -41,16 +41,17 @@ function filterEmpty(object) {
 
 async function getConfigFromFile(bucket) {
   try {
-    const explorer = cosmiconfig('qcup')
+    const explorer = cosmiconfig('coscp')
 
     const { config } = await explorer.search()
+    if (!config.hasOwnProperty(bucket)) return
     const { app_id, secret_id, secret_key, region } = config[bucket]
+
     return filterEmpty({
       appId: app_id,
       secretId: secret_id,
       secretKey: secret_key,
       region,
-      bucket,
     })
   } catch (e) {
     if (e.code === 'ENOENT') {
@@ -67,23 +68,12 @@ function getConfigFromENV() {
     secretId: process.env.QCLOUD_SECRET_ID,
     secretKey: process.env.QCLOUD_SECRET_KEY,
     region: process.env.QCLOUD_REGION,
-    bucket: process.env.QCLOUD_BUCKET,
-  })
-}
-
-function getConfigFromCLI(argv) {
-  return filterEmpty({
-    appId: argv['app-id'],
-    secretId: argv['secret-id'],
-    secretKey: argv['secret-key'],
-    region: argv.region,
-    bucket: argv.bucket,
   })
 }
 
 module.exports = {
   getConfigFromFile,
   getConfigFromENV,
-  getConfigFromCLI,
   checkConfigFields,
+  filterEmpty,
 }

@@ -1,8 +1,8 @@
 {
-  "name": "@teambun/qcup",
-  "version": "2.0.1",
-  "description": "Efficient file uploader for QCloud.",
-  "repository": "https://m31271n@bitbucket.org/teambun/qcup.git",
+  "name": "@teambun/coscp",
+  "version": "3.0.0",
+  "description": "Efficient file transfer for QCloud COS.",
+  "repository": "https://m31271n@bitbucket.org/teambun/coscp.git",
   "bin": "src/cli.js",
   "engines": {
     "node": ">=8"
@@ -21,6 +21,7 @@
     "qcloud"
   ],
   "dependencies": {
+    "caporal": "^0.10.0",
     "cli-table": "^0.3.1",
     "cos-nodejs-sdk-v5": "https://github.com/tencentyun/cos-nodejs-sdk-v5.git#298b2a",
     "cosmiconfig": "^5.0.5",
@@ -29,8 +30,7 @@
     "fast-glob": "^2.2.2",
     "md5-file": "^4.0.0",
     "p-map": "^1.2.0",
-    "run-function": "^0.1.3",
-    "yargs": "^11.0.0"
+    "run-function": "^0.1.3"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
