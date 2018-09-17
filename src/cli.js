@@ -24,11 +24,25 @@ program
   .argument('<source>', 'source dir to upload')
   .argument('<bucket:target>', 'bucket and dist dir')
   .option('-k, --concurrency <n>', 'concurrent tasks', program.INT, 5)
-  .option('--no-interactive', 'disable interactive logs', program.BOOL, false)
+  .option(
+    '-n, --no-interactive',
+    'disable interactive logs',
+    program.BOOL,
+    false
+  )
   .option(
     '-c, --cache <n>',
     "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
-    program.INT,
+    opt => {
+      if (/^\d+$/.test(opt)) {
+        return Number.parseInt(opt, 10)
+      } else if (opt === 'auto') {
+        return opt
+      } else {
+        // throw an empty string to not effect the error message
+        throw ''
+      }
+    },
     60
   )
   .option('--app-id <n>', 'overrides app id in config file')

@@ -73,13 +73,11 @@ function cacheHeader(seconds) {
 
 function getCacheHeader(key, cache) {
   // set policy according --cache option
-  if (Number.isNaN(cache)) {
-    // --cache auto
+  if (cache === 'auto') {
     return isHTML(key) || isStale(key)
       ? cacheHeader(60)
       : cacheHeader(3600 * 24 * 365)
   } else {
-    // --cache <number>
     return cacheHeader(cache)
   }
 }
