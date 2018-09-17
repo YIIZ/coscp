@@ -64,11 +64,10 @@ async function upload(
 }
 
 function cacheHeader(seconds) {
-  const ms = seconds * 1000
-
   return {
     CacheControl: seconds ? `max-age=${seconds}` : 'no-cache',
-    Expires: new Date(Date.now() + ms).toUTCString(),
+    // not available in cos
+    // Expires: new Date(Date.now() + seconds * 1000).toUTCString(),
   }
 }
 

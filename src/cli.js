@@ -83,11 +83,16 @@ async function main() {
         const interactive = !argv.n
         const cache = argv.cache
 
+        const configFromCLI = await getConfigFromCLI(argv)
+        const configFromEnv = await getConfigFromENV()
+        const configFromFile = await getConfigFromFile(
+          configFromCLI.Bucket || configFromEnv.Bucket
+        )
         const config = Object.assign(
           {},
-          await getConfigFromFile(),
-          await getConfigFromENV(),
-          await getConfigFromCLI(argv)
+          configFromFile,
+          configFromEnv,
+          configFromCLI
         )
 
         checkConfigFields(config)
