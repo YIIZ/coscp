@@ -1,6 +1,7 @@
 # coscp
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![NPM Downloads](https://img.shields.io/npm/dm/@teambun/coscp.svg)](https://www.npmjs.com/package/@teambun/coscp)
 
 > Efficient file transfer for QCloud COS.
 
@@ -22,7 +23,7 @@ $ npm install -g @teambun/coscp
 $ coscp gen-config
 ```
 
-After generating `~/.coscprc.js`, read instructions in the file, set it properly.
+After generating `~/.coscprc.yml`, read instructions in the file, set it properly.
 
 ## Usage
 
