@@ -72,22 +72,16 @@ function cacheHeader(seconds) {
 }
 
 function getCacheHeader(key, cache) {
-  // default policy
-  let header = cacheHeader(60)
-
   // set policy according --cache option
   if (Number.isNaN(cache)) {
     // --cache auto
-    header =
-      isHTML(key) || isStale(key)
-        ? cacheHeader(60)
-        : cacheHeader(3600 * 24 * 365)
-  } else if (cache || cache === 0) {
+    return isHTML(key) || isStale(key)
+      ? cacheHeader(60)
+      : cacheHeader(3600 * 24 * 365)
+  } else {
     // --cache <number>
-    header = cacheHeader(cache)
+    return cacheHeader(cache)
   }
-
-  return header
 }
 
 function isHTML(key) {
