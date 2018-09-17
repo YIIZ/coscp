@@ -28,7 +28,7 @@ program
   .option(
     '-c, --cache <n>',
     "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
-    program.INT,
+    /^auto|\d+$/,
     60
   )
   .option('--app-id <n>', 'overrides app id in config file')
