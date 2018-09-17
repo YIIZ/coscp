@@ -2,7 +2,7 @@
   "name": "@teambun/coscp",
   "version": "3.0.0",
   "description": "Efficient file transfer for QCloud COS.",
-  "repository": "https://m31271n@bitbucket.org/teambun/coscp.git",
+  "repository": "yiiz/coscp",
   "bin": "src/cli.js",
   "engines": {
     "node": ">=8"
