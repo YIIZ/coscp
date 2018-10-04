@@ -1,5 +1,6 @@
 'use strict'
 
+const os = require('os')
 const cosmiconfig = require('cosmiconfig')
 
 function generateMissingFieldsMessage(fields) {
@@ -43,7 +44,7 @@ async function getConfigFromFile(bucket) {
   try {
     const explorer = cosmiconfig('coscp')
 
-    const { config } = await explorer.search()
+    const { config } = await explorer.search(os.homedir())
     if (!config.hasOwnProperty(bucket)) return
     const { app_id, secret_id, secret_key, region } = config[bucket]
 
@@ -54,11 +55,7 @@ async function getConfigFromFile(bucket) {
       region,
     })
   } catch (e) {
-    if (e.code === 'ENOENT') {
-      return {}
-    } else {
-      throw e
-    }
+    throw new Error('Failed to read configuration file.')
   }
 }
 
