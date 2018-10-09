@@ -24,7 +24,12 @@ program
   .argument('<source>', 'source dir to upload')
   .argument('<bucket:target>', 'bucket and dist dir')
   .option('-k, --concurrency <n>', 'concurrent tasks', program.INT, 5)
-  .option('--no-interactive', 'disable interactive logs', program.BOOL, false)
+  .option(
+    '-n, --no-interactive',
+    'disable interactive logs',
+    program.BOOL,
+    false
+  )
   .option(
     '-c, --cache <n>',
     "specify cache time (unit: second). Moreover, if 'auto' is passed, switch to cache policy for production",
