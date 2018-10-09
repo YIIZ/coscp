@@ -11,6 +11,7 @@ const sample = `# config sample for coscp
 # basic concepts: https://cloud.tencent.com/document/product/436/6225
 # availible regions: https://cloud.tencent.com/document/product/436/6224
 mybucket:
+  # bucket: mybucket
   app_id: '1000000000'
   secret_id: 'sample-secret-id'
   secret_key: 'sample-secret-key'

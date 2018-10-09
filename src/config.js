@@ -40,15 +40,16 @@ function filterEmpty(object) {
   return object
 }
 
-async function getConfigFromFile(bucket) {
+async function getConfigFromFile(name) {
   try {
     const explorer = cosmiconfig('coscp')
 
     const { config } = await explorer.search(os.homedir())
-    if (!config.hasOwnProperty(bucket)) return
-    const { app_id, secret_id, secret_key, region } = config[bucket]
+    if (!config.hasOwnProperty(name)) return
+    const { app_id, secret_id, secret_key, region, bucket } = config[name]
 
     return filterEmpty({
+      bucket,
       appId: app_id,
       secretId: secret_id,
       secretKey: secret_key,
