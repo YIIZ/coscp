@@ -46,6 +46,13 @@ Cache policy for production with `--cache auto` option:
 | \*.html, \*.stale.\*  | 60 seconds |
 | Others                |     1 year |
 
+Cache policy for production with `--cache res` option:
+
+| File Type / File Name |     Expire |
+| :-------------------- | ---------: |
+| \*.html, \*.js, \*.css|    disable |
+| resources             |     1 year |
+
 Customize cache policy with `--cache` option, such as:
 
 - `--cache 0`: disable cache.
