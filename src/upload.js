@@ -40,7 +40,7 @@ async function upload(
   const params = Object.assign({}, headers, {
     Key: key,
     FilePath: filePath,
-    onProgress: function (progressData) {
+    onProgress: function(progressData) {
       const progress = Math.round(progressData.percent * 100)
       runFn(onProgress, progress)
     },
@@ -78,9 +78,6 @@ function getCacheHeader(key, cache) {
     return isHTML(key) || isStale(key)
       ? cacheHeader(60)
       : cacheHeader(3600 * 24 * 365)
-  } else if (cache === 'res') {
-    // --cache res
-    return isCodeFile(key) ? cacheHeader(0) : cacheHeader(3600 * 24 * 365)
   } else {
     // --cache <number>
     return cacheHeader(parseInt(cache))
@@ -89,10 +86,6 @@ function getCacheHeader(key, cache) {
 
 function isHTML(key) {
   return /\.html?$/.test(key)
-}
-
-function isCodeFile(key) {
-  return /\.(js|css|html)?$/.test(key)
 }
 
 function isStale(key) {
