@@ -7,6 +7,7 @@
 
 ## Features
 
+- Incremental Upload
 - Concurrency Support
 - Report Sheet
 - Enable / Disable / Customize HTTP Cache
