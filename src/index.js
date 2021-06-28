@@ -9,11 +9,7 @@ const upload = require('./upload')
 const checkUploadPermission = require('./check-upload-permission')
 
 async function scanFiles(dir) {
-  const trailingSlashRE = /\/$/
-  dir = dir.replace(trailingSlashRE, '')
-
-  const files = await fg.async([`${dir}/**/*`])
-  return files
+  return await fg([path.join(dir, '**/*')])
 }
 
 function replaceFilePath(filePath, source, target) {
