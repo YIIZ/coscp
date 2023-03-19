@@ -5,7 +5,7 @@ const cosmiconfig = require('cosmiconfig')
 
 function generateMissingFieldsMessage(fields) {
   const message = ['check config, ensure following fields is provided:']
-  fields.forEach(field => {
+  fields.forEach((field) => {
     message.push(`* ${field}`)
   })
 
@@ -56,7 +56,7 @@ async function getConfigFromFile(name) {
       region,
     })
   } catch (e) {
-    throw new Error('Failed to read configuration file.')
+    console.warn('Failed to read configuration file.')
   }
 }
 
